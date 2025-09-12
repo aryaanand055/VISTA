@@ -1,1 +1,5 @@
-// Flows will be imported for their side effects in this file.
+import { config } from 'dotenv';
+config();
+
+import '@/ai/flows/optimize-existing-itinerary.ts';
+import '@/ai/flows/smart-itinerary-from-prompt.ts';

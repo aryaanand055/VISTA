@@ -1,3 +1,46 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "dashboard_current_location",
+      "description": "A beautiful view of the current travel destination.",
+      "imageUrl": "https://picsum.photos/seed/101/1200/400",
+      "imageHint": "travel destination"
+    },
+    {
+      "id": "digital_id_qr",
+      "description": "A QR code for digital ID verification.",
+      "imageUrl": "https://picsum.photos/seed/104/300/300",
+      "imageHint": "qr code"
+    },
+    {
+      "id": "user_avatar_alex",
+      "description": "Avatar for user Alex Doe",
+      "imageUrl": "https://picsum.photos/seed/person1/100/100",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "tracking_map",
+      "description": "A city map for tracking family members.",
+      "imageUrl": "https://picsum.photos/seed/105/1200/800",
+      "imageHint": "city map"
+    },
+    {
+      "id": "family_avatar_jane",
+      "description": "Avatar for family member Jane Doe",
+      "imageUrl": "https://picsum.photos/seed/person2/100/100",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "family_avatar_sam",
+      "description": "Avatar for family member Sam Doe",
+      "imageUrl": "https://picsum.photos/seed/person3/100/100",
+      "imageHint": "boy portrait"
+    },
+    {
+      "id": "family_avatar_emily",
+      "description": "Avatar for family member Emily Doe",
+      "imageUrl": "https://picsum.photos/seed/person4/100/100",
+      "imageHint": "girl portrait"
+    }
+  ]
 }
