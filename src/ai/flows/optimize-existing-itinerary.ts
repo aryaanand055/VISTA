@@ -11,7 +11,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { ItineraryDaySchema } from './smart-itinerary-from-prompt';
+import { ItineraryDaySchema } from './schemas';
 
 const OptimizeExistingItineraryInputSchema = z.object({
   itinerary: z.array(ItineraryDaySchema).describe('The existing itinerary as a structured object.'),

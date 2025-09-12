@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { generateSmartItinerary, type ItineraryDay, type SmartItineraryOutput } from '@/ai/flows/smart-itinerary-from-prompt';
-import { optimizeExistingItinerary, type OptimizeExistingItineraryOutput } from '@/ai/flows/optimize-existing-itinerary';
+import { generateSmartItinerary, type SmartItineraryInput, type SmartItineraryOutput } from '@/ai/flows/smart-itinerary-from-prompt';
+import { optimizeExistingItinerary, type OptimizeExistingItineraryInput, type OptimizeExistingItineraryOutput } from '@/ai/flows/optimize-existing-itinerary';
+import type { ItineraryDay } from '@/ai/flows/schemas';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
