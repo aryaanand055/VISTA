@@ -37,12 +37,12 @@ export default function DigitalIdPage() {
         <CardContent className="space-y-4 p-6">
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16">
-              <AvatarImage src="https://picsum.photos/seed/person1/100/100" alt="Alex Doe" data-ai-hint="person portrait" />
-              <AvatarFallback>AD</AvatarFallback>
+              <AvatarImage src="https://picsum.photos/seed/person1/100/100" alt="Priya Sharma" data-ai-hint="woman portrait" />
+              <AvatarFallback>PS</AvatarFallback>
             </Avatar>
             <div>
-              <h2 className="font-headline text-2xl font-bold">Alex Doe</h2>
-              <p className="text-muted-foreground">Nationality: American</p>
+              <h2 className="font-headline text-2xl font-bold">Priya Sharma</h2>
+              <p className="text-muted-foreground">Nationality: Indian</p>
             </div>
           </div>
           <div className="grid grid-cols-1 gap-4 pt-4 sm:grid-cols-2">
@@ -50,21 +50,21 @@ export default function DigitalIdPage() {
               <Calendar className="mt-1 h-5 w-5 text-primary" />
               <div>
                 <p className="text-sm font-semibold">Trip Dates</p>
-                <p className="text-muted-foreground">Oct 20, 2024 - Nov 5, 2024</p>
+                <p className="text-muted-foreground">Dec 10, 2024 - Dec 25, 2024</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <Plane className="mt-1 h-5 w-5 text-primary" />
               <div>
                 <p className="text-sm font-semibold">Flight Info</p>
-                <p className="text-muted-foreground">UA-456, Arrival CDG</p>
+                <p className="text-muted-foreground">6E-204, Arrival JAI</p>
               </div>
             </div>
             <div className="col-span-1 flex items-start gap-3 sm:col-span-2">
               <Fingerprint className="mt-1 h-5 w-5 text-primary" />
               <div>
                 <p className="text-sm font-semibold">Biometric Hash (Blockchain)</p>
-                <p className="font-mono text-xs text-muted-foreground break-all">0x7a2f...9c4b</p>
+                <p className="font-mono text-xs text-muted-foreground break-all">0x8b3g...7d5a</p>
               </div>
             </div>
           </div>

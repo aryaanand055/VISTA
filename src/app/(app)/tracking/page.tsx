@@ -7,9 +7,9 @@ import { Label } from '@/components/ui/label';
 import { MapPin } from 'lucide-react';
 
 const familyMembers = [
-  { name: 'Jane Doe', relation: 'Spouse', avatar: 'https://picsum.photos/seed/person2/100/100', hint: 'woman portrait', status: 'Near Eiffel Tower', online: true },
-  { name: 'Sam Doe', relation: 'Son', avatar: 'https://picsum.photos/seed/person3/100/100', hint: 'boy portrait', status: 'At The Louvre', online: true },
-  { name: 'Emily Doe', relation: 'Daughter', avatar: 'https://picsum.photos/seed/person4/100/100', hint: 'girl portrait', status: 'Offline', online: false },
+  { name: 'Rohan Sharma', relation: 'Spouse', avatar: 'https://picsum.photos/seed/person2/100/100', hint: 'man portrait', status: 'Near Hawa Mahal', online: true },
+  { name: 'Aarav Sharma', relation: 'Son', avatar: 'https://picsum.photos/seed/person3/100/100', hint: 'boy portrait', status: 'At City Palace', online: true },
+  { name: 'Ananya Sharma', relation: 'Daughter', avatar: 'https://picsum.photos/seed/person4/100/100', hint: 'girl portrait', status: 'Offline', online: false },
 ];
 
 export default function TrackingPage() {
@@ -35,7 +35,7 @@ export default function TrackingPage() {
               <div className="relative aspect-[4/3] w-full">
                 <Image
                   src="https://picsum.photos/seed/105/1200/800"
-                  alt="Map of Paris"
+                  alt="Map of Jaipur"
                   fill
                   style={{ objectFit: 'cover' }}
                   className="rounded-lg"
@@ -55,13 +55,13 @@ export default function TrackingPage() {
                 <div className="absolute top-[30%] left-[30%] -translate-x-1/2 -translate-y-1/2">
                   <MapPin className="h-6 w-6 text-[hsl(var(--chart-1))] drop-shadow-md" fill="currentColor" />
                   <div className="mt-1 -ml-4 rounded-md bg-card p-1 text-center shadow-lg">
-                    <p className="text-xs font-semibold">Jane</p>
+                    <p className="text-xs font-semibold">Rohan</p>
                   </div>
                 </div>
                 <div className="absolute top-[60%] left-[65%] -translate-x-1/2 -translate-y-1/2">
                   <MapPin className="h-6 w-6 text-[hsl(var(--chart-3))] drop-shadow-md" fill="currentColor" />
                   <div className="mt-1 -ml-4 rounded-md bg-card p-1 text-center shadow-lg">
-                    <p className="text-xs font-semibold">Sam</p>
+                    <p className="text-xs font-semibold">Aarav</p>
                   </div>
                 </div>
               </div>

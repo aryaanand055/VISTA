@@ -15,7 +15,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-headline text-3xl font-bold tracking-tight">Welcome, Alex!</h1>
+      <h1 className="font-headline text-3xl font-bold tracking-tight">Welcome, Priya!</h1>
 
       <div className="relative h-64 w-full overflow-hidden rounded-xl shadow-lg">
         <Image
@@ -23,16 +23,16 @@ export default function DashboardPage() {
           alt="Current Location"
           fill
           style={{ objectFit: 'cover' }}
-          data-ai-hint="travel destination"
+          data-ai-hint="indian palace"
           priority
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         <div className="absolute bottom-0 left-0 p-6">
           <div className="flex items-center gap-2 text-white">
             <MapPin className="h-5 w-5" />
-            <p className="font-semibold">Paris, France</p>
+            <p className="font-semibold">Jaipur, India</p>
           </div>
-          <h2 className="mt-2 font-headline text-4xl font-bold text-white">Your Parisian Adventure</h2>
+          <h2 className="mt-2 font-headline text-4xl font-bold text-white">Your Jaipuri Adventure</h2>
         </div>
       </div>
 
@@ -55,7 +55,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader>
             <CardDescription>Today's Plan</CardDescription>
-            <CardTitle className="font-headline">Eiffel Tower & Louvre</CardTitle>
+            <CardTitle className="font-headline">Hawa Mahal & City Palace</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-start gap-4">
@@ -63,7 +63,7 @@ export default function DashboardPage() {
                 <FerrisWheel className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="font-semibold">Eiffel Tower</p>
+                <p className="font-semibold">Hawa Mahal</p>
                 <p className="text-sm text-muted-foreground">10:00 AM - 1:00 PM</p>
               </div>
             </div>
@@ -72,7 +72,7 @@ export default function DashboardPage() {
                 <Sun className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="font-semibold">Louvre Museum</p>
+                <p className="font-semibold">City Palace</p>
                 <p className="text-sm text-muted-foreground">2:00 PM - 5:00 PM</p>
               </div>
             </div>
@@ -82,13 +82,13 @@ export default function DashboardPage() {
         <Card>
           <CardHeader>
             <CardDescription>Weather Forecast</CardDescription>
-            <CardTitle className="font-headline">Partly Cloudy</CardTitle>
+            <CardTitle className="font-headline">Sunny</CardTitle>
           </CardHeader>
           <CardContent className="flex items-center gap-4">
-            <Cloudy className="h-16 w-16 text-muted-foreground" />
+            <Sun className="h-16 w-16 text-muted-foreground" />
             <div>
-              <p className="text-4xl font-bold">19°C</p>
-              <p className="text-sm text-muted-foreground">Feels like 17°C</p>
+              <p className="text-4xl font-bold">32°C</p>
+              <p className="text-sm text-muted-foreground">Feels like 35°C</p>
             </div>
           </CardContent>
         </Card>

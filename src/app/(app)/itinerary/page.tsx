@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { generateSmartItinerary, type SmartItineraryInput, type SmartItineraryOutput } from '@/ai/flows/smart-itinerary-from-prompt';
 import { optimizeExistingItinerary, type OptimizeExistingItineraryInput, type OptimizeExistingItineraryOutput } from '@/ai/flows/optimize-existing-itinerary';
 import type { ItineraryDay } from '@/ai/flows/schemas';
@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Loader2, Wand2, Sparkles, AlertTriangle, Clock, Shield } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Loader2, Wand2, Sparkles, AlertTriangle, Clock, Shield, Upload, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -24,37 +25,28 @@ import {
 import { sendSosAlert } from '@/ai/flows/sos-alert';
 
 const exampleItinerary: SmartItineraryOutput = {
-  title: 'Classic Parisian Holiday',
+  title: 'Classic Jaipuri Holiday',
   itinerary: [
     {
       day: 1,
-      theme: "Monuments & Museums",
+      theme: "Palaces & Forts",
       events: [
-        { time: '9:00 AM', activity: 'Visit the Eiffel Tower.', safetyScore: 90 },
-        { time: '1:00 PM', activity: 'Lunch near the Tower, then walk to Champ de Mars.', safetyScore: 88 },
-        { time: '4:00 PM', activity: 'Explore the Trocadéro Gardens for sunset views.', safetyScore: 92 },
+        { time: '9:00 AM', activity: 'Visit the Hawa Mahal.', safetyScore: 90 },
+        { time: '1:00 PM', activity: 'Lunch near the palace, then head to City Palace.', safetyScore: 88 },
+        { time: '4:00 PM', activity: 'Explore the Jantar Mantar for sunset views.', safetyScore: 92 },
       ],
     },
     {
       day: 2,
-      theme: 'Art & River Views',
+      theme: 'Historic Steps & Shopping',
       events: [
-        { time: '10:00 AM - 5:00 PM', activity: 'Discover art at the Louvre Museum.', safetyScore: 85 },
-        { time: '7:00 PM', activity: 'Dinner cruise on the Seine River.', safetyScore: 95 },
-      ],
-    },
-    {
-      day: 3,
-      theme: 'Historic Charm',
-      events: [
-        { time: '10:00 AM', activity: 'Climb the Notre-Dame Cathedral towers (if open).', safetyScore: 82 },
-        { time: '1:00 PM', activity: 'Stroll through the Latin Quarter.', safetyScore: 89 },
-        { time: '6:00 PM', activity: 'Watch a show at the Moulin Rouge.', safetyScore: 78 },
+        { time: '10:00 AM - 2:00 PM', activity: 'Explore Amer Fort.', safetyScore: 85 },
+        { time: '4:00 PM', activity: 'Visit the Panna Meena Ka Kund stepwell.', safetyScore: 89 },
+        { time: '7:00 PM', activity: 'Dinner and shopping at Johari Bazaar.', safetyScore: 78 },
       ],
     },
   ],
 };
-
 
 export default function ItineraryPage() {
   const [prompt, setPrompt] = useState('');
@@ -64,6 +56,7 @@ export default function ItineraryPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleGenerate = async () => {
     if (!prompt) {
@@ -89,7 +82,7 @@ export default function ItineraryPage() {
     setIsOptimizing(true);
     setOptimization(null);
     try {
-      const result = await optimizeExistingItinerary({ itinerary: itineraryOutput.itinerary });
+      const result = await optimizeExistingItinerary({ itinerary: itineraryOutput.itinerary, location: 'Jaipur, India' });
       setOptimization(result);
       toast({ title: 'Itinerary Optimized!', description: "We've found some safer and faster alternatives for you." });
     } catch (error) {
@@ -103,7 +96,7 @@ export default function ItineraryPage() {
   const handleSos = async () => {
     try {
       await sendSosAlert({
-        location: 'Near Eiffel Tower, Paris',
+        location: 'Near Hawa Mahal, Jaipur',
         itinerary: JSON.stringify(itineraryOutput?.itinerary, null, 2),
       });
       toast({
@@ -120,12 +113,37 @@ export default function ItineraryPage() {
       });
     }
   };
-
-  const getSafetyClass = (score: number) => {
-    if (score > 80) return 'text-primary';
-    if (score > 60) return 'text-accent';
-    return 'text-destructive';
+  
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        handleCustomItinerary(text, file.name);
+      };
+      reader.readAsText(file);
+    }
   };
+
+  const handleCustomItinerary = (text: string, title: string = 'Custom Itinerary') => {
+    try {
+      // Attempt to parse as JSON, if not, treat as a text prompt
+      const parsed = JSON.parse(text);
+      if (Array.isArray(parsed) && parsed.every(item => 'day' in item && 'events' in item)) {
+        setItineraryOutput({ title, itinerary: parsed });
+      } else {
+        setPrompt(text);
+        handleGenerate();
+      }
+    } catch {
+      // If JSON parsing fails, treat it as a text prompt
+      setPrompt(text);
+      handleGenerate();
+    }
+    toast({ title: 'Itinerary Loaded', description: 'Your custom itinerary has been loaded. You can now optimize it.' });
+  };
+
 
   return (
     <div className="space-y-6">
@@ -161,8 +179,8 @@ export default function ItineraryPage() {
           <CardHeader>
             <CardTitle>Create New Itinerary</CardTitle>
             <CardDescription>
-              Describe your interests, budget, and desired activities. For example: "A 3-day romantic trip to Paris, focusing on art
-              museums, beautiful views, and local cuisine."
+              Describe your interests, budget, and desired activities. For example: "A 3-day trip to Jaipur, focusing on historical
+              forts, local markets, and authentic Rajasthani food."
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -184,6 +202,37 @@ export default function ItineraryPage() {
             </Button>
           </CardFooter>
         </Card>
+
+        <Card>
+            <CardHeader>
+                <CardTitle>Use Existing Itinerary</CardTitle>
+                <CardDescription>
+                Upload a JSON file or paste your itinerary text to get started. We'll parse it and make it ready for optimization.
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="space-y-4">
+                <Button onClick={() => fileInputRef.current?.click()} className="w-full" variant="outline">
+                    <Upload className="mr-2" /> Upload File
+                </Button>
+                <Input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".json,.txt" />
+                <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">Or paste here</span>
+                    </div>
+                </div>
+                <Textarea
+                    placeholder="Paste your itinerary JSON or text here..."
+                    rows={4}
+                    onChange={(e) => handleCustomItinerary(e.target.value)}
+                />
+                </div>
+            </CardContent>
+        </Card>
+
 
         {isGenerating && (
           <Card className="lg:col-span-2">
