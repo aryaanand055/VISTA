@@ -10,13 +10,26 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
+const ItineraryDaySchema = z.object({
+  day: z.number().describe('Day number of the itinerary, starting from 1.'),
+  theme: z.string().optional().describe('A theme for the day, like "Cultural Exploration" or "Relaxation Day".'),
+  events: z.array(z.object({
+    time: z.string().describe('The time of the event, e.g., "9:00 AM" or "Afternoon".'),
+    activity: z.string().describe('The description of the activity or event.'),
+    safetyScore: z.number().min(0).max(100).optional().describe('Safety score for the location of the activity.'),
+  })),
+});
+export type ItineraryDay = z.infer<typeof ItineraryDaySchema>;
+
+
 const SmartItineraryInputSchema = z.object({
   prompt: z.string().describe('A prompt describing the user\'s interests, desired activities, and travel dates.'),
 });
 export type SmartItineraryInput = z.infer<typeof SmartItineraryInputSchema>;
 
 const SmartItineraryOutputSchema = z.object({
-  itinerary: z.string().describe('A personalized itinerary including specific locations, estimated travel times, and safety scores for each location.'),
+  itinerary: z.array(ItineraryDaySchema).describe('A personalized itinerary including specific locations, estimated travel times, and safety scores for each location.'),
+  title: z.string().describe('A creative title for the itinerary.'),
 });
 export type SmartItineraryOutput = z.infer<typeof SmartItineraryOutputSchema>;
 
@@ -28,7 +41,7 @@ const prompt = ai.definePrompt({
   name: 'smartItineraryFromPromptPrompt',
   input: {schema: SmartItineraryInputSchema},
   output: {schema: SmartItineraryOutputSchema},
-  prompt: `You are an AI travel assistant. Generate a personalized itinerary based on the following prompt:\n\n{{{prompt}}}\n\nThe itinerary should include specific locations, estimated travel times, and safety scores for each location.\n\nReturn the itinerary as a string.\n`,
+  prompt: `You are an AI travel assistant. Generate a personalized itinerary based on the following prompt:\n\n{{{prompt}}}\n\nThe itinerary should be structured as a list of days, each with a theme and a list of events. Each event must have a time, activity, and an optional safety score. Also generate a creative title for the whole trip.`,
 });
 
 const smartItineraryFromPromptFlow = ai.defineFlow(
