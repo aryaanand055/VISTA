@@ -4,7 +4,7 @@
       "id": "dashboard_current_location",
       "description": "A beautiful view of the current travel destination.",
       "imageUrl": "https://picsum.photos/seed/101/1200/400",
-      "imageHint": "travel destination"
+      "imageHint": "indian palace"
     },
     {
       "id": "digital_id_qr",
@@ -13,32 +13,32 @@
       "imageHint": "qr code"
     },
     {
-      "id": "user_avatar_alex",
-      "description": "Avatar for user Alex Doe",
+      "id": "user_avatar_priya",
+      "description": "Avatar for user Priya Sharma",
       "imageUrl": "https://picsum.photos/seed/person1/100/100",
-      "imageHint": "person portrait"
+      "imageHint": "woman portrait"
     },
     {
       "id": "tracking_map",
       "description": "A city map for tracking family members.",
-      "imageUrl": "https://picsum.photos/seed/105/1200/800",
-      "imageHint": "city map"
+      "imageUrl": "https://picsum.photos/seed/map-jaipur/1200/900",
+      "imageHint": "street map jaipur"
     },
     {
-      "id": "family_avatar_jane",
-      "description": "Avatar for family member Jane Doe",
+      "id": "family_avatar_rohan",
+      "description": "Avatar for family member Rohan Sharma",
       "imageUrl": "https://picsum.photos/seed/person2/100/100",
-      "imageHint": "woman portrait"
+      "imageHint": "man portrait"
     },
     {
-      "id": "family_avatar_sam",
-      "description": "Avatar for family member Sam Doe",
+      "id": "family_avatar_aarav",
+      "description": "Avatar for family member Aarav Sharma",
       "imageUrl": "https://picsum.photos/seed/person3/100/100",
       "imageHint": "boy portrait"
     },
     {
-      "id": "family_avatar_emily",
-      "description": "Avatar for family member Emily Doe",
+      "id": "family_avatar_ananya",
+      "description": "Avatar for family member Ananya Sharma",
       "imageUrl": "https://picsum.photos/seed/person4/100/100",
       "imageHint": "girl portrait"
     }

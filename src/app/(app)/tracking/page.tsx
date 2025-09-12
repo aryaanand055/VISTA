@@ -7,9 +7,9 @@ import { Label } from '@/components/ui/label';
 import { MapPin } from 'lucide-react';
 
 const familyMembers = [
-  { name: 'Rohan Sharma', relation: 'Spouse', avatar: 'https://picsum.photos/seed/person2/100/100', hint: 'man portrait', status: 'Near Hawa Mahal', online: true },
-  { name: 'Aarav Sharma', relation: 'Son', avatar: 'https://picsum.photos/seed/person3/100/100', hint: 'boy portrait', status: 'At City Palace', online: true },
-  { name: 'Ananya Sharma', relation: 'Daughter', avatar: 'https://picsum.photos/seed/person4/100/100', hint: 'girl portrait', status: 'Offline', online: false },
+  { name: 'Rohan Sharma', relation: 'Spouse', avatar: 'https://picsum.photos/seed/person2/100/100', hint: 'man portrait', status: 'Near Hawa Mahal', online: true, color: 'hsl(var(--chart-1))' },
+  { name: 'Aarav Sharma', relation: 'Son', avatar: 'https://picsum.photos/seed/person3/100/100', hint: 'boy portrait', status: 'At City Palace', online: true, color: 'hsl(var(--chart-3))'  },
+  { name: 'Ananya Sharma', relation: 'Daughter', avatar: 'https://picsum.photos/seed/person4/100/100', hint: 'girl portrait', status: 'Offline', online: false, color: 'hsl(var(--muted))' },
 ];
 
 export default function TrackingPage() {
@@ -32,14 +32,13 @@ export default function TrackingPage() {
         <div className="relative lg:col-span-2">
           <Card>
             <CardContent className="p-0">
-              <div className="relative aspect-[4/3] w-full">
+              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg">
                 <Image
-                  src="https://picsum.photos/seed/105/1200/800"
+                  src="https://picsum.photos/seed/map-jaipur/1200/900"
                   alt="Map of Jaipur"
                   fill
                   style={{ objectFit: 'cover' }}
-                  className="rounded-lg"
-                  data-ai-hint="city map"
+                  data-ai-hint="street map jaipur"
                 />
                 {/* Mock pins */}
                 <div className="absolute top-[40%] left-[50%] -translate-x-1/2 -translate-y-1/2">
@@ -53,15 +52,15 @@ export default function TrackingPage() {
                   </div>
                 </div>
                 <div className="absolute top-[30%] left-[30%] -translate-x-1/2 -translate-y-1/2">
-                  <MapPin className="h-6 w-6 text-[hsl(var(--chart-1))] drop-shadow-md" fill="currentColor" />
-                  <div className="mt-1 -ml-4 rounded-md bg-card p-1 text-center shadow-lg">
-                    <p className="text-xs font-semibold">Rohan</p>
+                  <MapPin className="h-6 w-6 drop-shadow-md" fill={familyMembers[0].color} stroke="white" strokeWidth={1} />
+                   <div className="mt-1 -ml-4 rounded-md bg-card p-1 text-center shadow-lg">
+                    <p className="text-xs font-semibold">{familyMembers[0].name.split(' ')[0]}</p>
                   </div>
                 </div>
                 <div className="absolute top-[60%] left-[65%] -translate-x-1/2 -translate-y-1/2">
-                  <MapPin className="h-6 w-6 text-[hsl(var(--chart-3))] drop-shadow-md" fill="currentColor" />
-                  <div className="mt-1 -ml-4 rounded-md bg-card p-1 text-center shadow-lg">
-                    <p className="text-xs font-semibold">Aarav</p>
+                  <MapPin className="h-6 w-6 drop-shadow-md" fill={familyMembers[1].color} stroke="white" strokeWidth={1}/>
+                   <div className="mt-1 -ml-4 rounded-md bg-card p-1 text-center shadow-lg">
+                    <p className="text-xs font-semibold">{familyMembers[1].name.split(' ')[0]}</p>
                   </div>
                 </div>
               </div>
