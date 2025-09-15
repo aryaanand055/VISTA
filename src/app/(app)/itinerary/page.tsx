@@ -1,6 +1,10 @@
+
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { useAuth } from '@/contexts/auth-context';
 import { generateSmartItinerary, type SmartItineraryInput, type SmartItineraryOutput } from '@/ai/flows/smart-itinerary-from-prompt';
 import { optimizeExistingItinerary, type OptimizeExistingItineraryInput, type OptimizeExistingItineraryOutput } from '@/ai/flows/optimize-existing-itinerary';
 import type { ItineraryDay } from '@/ai/flows/schemas';
@@ -9,7 +13,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Loader2, Wand2, Sparkles, AlertTriangle, Clock, Shield, Upload, FileText } from 'lucide-react';
+import { Loader2, Wand2, Sparkles, AlertTriangle, Clock, Shield, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -24,42 +28,56 @@ import {
 } from '@/components/ui/alert-dialog';
 import { sendSosAlert } from '@/ai/flows/sos-alert';
 
-const exampleItinerary: SmartItineraryOutput = {
-  title: 'Darjeeling Delights',
-  itinerary: [
-    {
-      day: 1,
-      theme: 'Arrival & Acclimatization',
-      events: [
-        { time: '2:00 PM', activity: 'Arrive at Bagdogra Airport (IXB) and travel to Darjeeling.', safetyScore: 95 },
-        { time: '6:00 PM', activity: 'Check into hotel and take a leisurely stroll down the Mall Road.', safetyScore: 90 },
-        { time: '8:00 PM', activity: 'Dinner at Glenary\'s with classic continental food.', safetyScore: 88 },
-      ],
-    },
-    {
-      day: 2,
-      theme: 'Sunrise, Rails & Tea',
-      events: [
-        { time: '4:00 AM', activity: 'Drive to Tiger Hill for a spectacular sunrise over Kanchenjunga.', safetyScore: 85 },
-        { time: '8:00 AM', activity: 'Visit the Ghoom Monastery and Batasia Loop.', safetyScore: 92 },
-        { time: '12:00 PM', activity: 'Ride the famous Darjeeling Himalayan Railway (Toy Train).', safetyScore: 94 },
-        { time: '4:00 PM', activity: 'Tour a tea estate and participate in a tea tasting session.', safetyScore: 96 },
-      ],
-    },
-  ],
-  explanation: 'This itinerary balances iconic Darjeeling experiences like the sunrise at Tiger Hill and the Toy Train with leisure time. Safety scores are generally high, but early morning travel to Tiger Hill requires a reliable driver.'
-};
-
 export default function ItineraryPage() {
+  const { user } = useAuth();
   const [prompt, setPrompt] = useState('');
-  const [itineraryOutput, setItineraryOutput] = useState<SmartItineraryOutput | null>(exampleItinerary);
+  const [itineraryOutput, setItineraryOutput] = useState<SmartItineraryOutput | null>(null);
   const [optimizationPrompt, setOptimizationPrompt] = useState('');
   const [optimization, setOptimization] = useState<OptimizeExistingItineraryOutput | null>(null);
 
+  const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const loadItinerary = async () => {
+      if (!user) return;
+      setIsLoading(true);
+      try {
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists() && userDoc.data().itinerary) {
+          setItineraryOutput(userDoc.data().itinerary);
+        }
+      } catch (error) {
+        console.error('Failed to load itinerary:', error);
+        toast({
+          title: 'Could not load saved itinerary.',
+          variant: 'destructive'
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadItinerary();
+  }, [user, toast]);
+
+  const saveItinerary = async (itinerary: SmartItineraryOutput) => {
+    if (!user) return;
+    try {
+      const userDocRef = doc(db, 'users', user.uid);
+      await setDoc(userDocRef, { itinerary: itinerary }, { merge: true });
+    } catch (error) {
+      console.error('Failed to save itinerary:', error);
+      toast({
+        title: 'Could not save itinerary.',
+        description: 'Your itinerary was generated but we failed to save it to your profile.',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const handleGenerate = async () => {
     if (!prompt) {
@@ -72,6 +90,7 @@ export default function ItineraryPage() {
     try {
       const result = await generateSmartItinerary({ prompt });
       setItineraryOutput(result);
+      await saveItinerary(result);
     } catch (error) {
       console.error(error);
       toast({ title: 'Error Generating Itinerary', description: 'Something went wrong. Please try again.', variant: 'destructive' });
@@ -125,30 +144,33 @@ export default function ItineraryPage() {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         const text = e.target?.result as string;
-        handleCustomItinerary(text, file.name);
+        await handleCustomItinerary(text, file.name);
       };
       reader.readAsText(file);
     }
   };
 
-  const handleCustomItinerary = (text: string, title = 'Custom Itinerary') => {
+  const handleCustomItinerary = async (text: string, title = 'Custom Itinerary') => {
+    let customItinerary: SmartItineraryOutput;
     try {
       // Attempt to parse as JSON, if not, treat as a text prompt
       const parsed = JSON.parse(text);
       if (Array.isArray(parsed) && parsed.every(item => 'day' in item && 'events' in item)) {
-        setItineraryOutput({ title, itinerary: parsed, explanation: 'Loaded from file.' });
+        customItinerary = { title, itinerary: parsed, explanation: 'Loaded from file.' };
+        setItineraryOutput(customItinerary);
+        await saveItinerary(customItinerary);
       } else {
         setPrompt(text);
-        handleGenerate();
+        await handleGenerate();
       }
     } catch {
       // If JSON parsing fails, treat it as a text prompt
       setPrompt(text);
-      handleGenerate();
+      await handleGenerate();
     }
-    toast({ title: 'Itinerary Loaded', description: 'Your custom itinerary has been loaded. You can now optimize it.' });
+    toast({ title: 'Itinerary Loaded', description: 'Your custom itinerary has been loaded and saved. You can now optimize it.' });
   };
 
 
@@ -239,18 +261,17 @@ export default function ItineraryPage() {
             </CardContent>
         </Card>
 
-
-        {isGenerating && (
+        {(isLoading || isGenerating) && (
           <Card className="lg:col-span-2">
             <CardContent className="p-8 text-center">
               <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
-              <p className="mt-4 font-semibold">Crafting your personalized journey...</p>
+              <p className="mt-4 font-semibold">{isGenerating ? 'Crafting your personalized journey...' : 'Loading your saved itinerary...'}</p>
               <p className="text-sm text-muted-foreground">This may take a moment.</p>
             </CardContent>
           </Card>
         )}
 
-        {itineraryOutput && !isGenerating && (
+        {itineraryOutput && !isGenerating && !isLoading && (
           <Card className="lg:col-span-2">
             <CardHeader>
               <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -313,9 +334,11 @@ export default function ItineraryPage() {
                         )}
                         <div className="flex gap-2 pt-2">
                         <Button
-                            onClick={() => {
-                            setItineraryOutput({ ...itineraryOutput, itinerary: optimization.optimizedItinerary });
-                            setOptimization(null);
+                            onClick={async () => {
+                              const newItinerary = { ...itineraryOutput, itinerary: optimization.optimizedItinerary };
+                              setItineraryOutput(newItinerary);
+                              await saveItinerary(newItinerary);
+                              setOptimization(null);
                             }}
                         >
                             Accept Changes
@@ -369,3 +392,5 @@ function ItineraryTimeline({ itinerary }: { itinerary: ItineraryDay[] }) {
     </div>
   );
 }
+
+    

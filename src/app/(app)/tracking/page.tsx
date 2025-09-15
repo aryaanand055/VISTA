@@ -1,9 +1,11 @@
+
 'use client';
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Globe, UserCheck, UserX } from 'lucide-react';
+import { useAuth } from '@/contexts/auth-context';
 
 const FamilyMap = dynamic(() => import('@/components/FamilyMap'), { 
     ssr: false,
@@ -16,13 +18,13 @@ const allFamilyMembers = [
   { name: 'Ananya Sharma', relation: 'Daughter', lat: 27.0350, lng: 88.2590, online: false, iconUrl: 'https://picsum.photos/seed/person4/48/48' },
 ];
 
-const user = { name: 'Priya Sharma', lat: 27.0380, lng: 88.2620, iconUrl: 'https://picsum.photos/seed/person1/48/48' };
 
 export default function TrackingPage() {
-    const [yourPosition, setYourPosition] = useState({ lat: user.lat, lng: user.lng });
+    const { user } = useAuth();
+    const [yourPosition, setYourPosition] = useState({ lat: 27.0380, lng: 88.2620 });
     // In a real app, this would be updated via websockets or regular polling
     const [familyMembers, setFamilyMembers] = useState(allFamilyMembers);
-    const [selectedMember, setSelectedMember] = useState&lt;any>(null);
+    const [selectedMember, setSelectedMember] = useState<any>(null);
 
     // This effect simulates getting the user's live location
     useEffect(() => {
@@ -62,7 +64,7 @@ export default function TrackingPage() {
                      {/* Your location */}
                     <div className="flex items-center gap-3 rounded-lg border border-primary bg-primary/10 p-3">
                         <Avatar className="h-10 w-10">
-                            <AvatarImage src={user.iconUrl} alt="You" />
+                            <AvatarImage src={user?.photoURL || 'https://picsum.photos/seed/person1/48/48'} alt="You" />
                             <AvatarFallback>Y</AvatarFallback>
                         </Avatar>
                         <div>
@@ -102,8 +104,10 @@ export default function TrackingPage() {
 
         {/* Right Column: Map */}
         <div className="lg:col-span-2 h-[400px] lg:h-full w-full rounded-lg border shadow-lg overflow-hidden">
-            <FamilyMap yourPosition={yourPosition} familyMembers={familyMembers} />
+            <FamilyMap yourPosition={yourPosition} familyMembers={familyMembers} user={user} />
         </div>
     </div>
   );
 }
+
+    
