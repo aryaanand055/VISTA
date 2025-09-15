@@ -3,7 +3,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { ref, get, child } from 'firebase/database';
 import { auth, db } from '@/lib/firebase';
 import { Loader2 } from 'lucide-react';
 
@@ -25,12 +25,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUser(user);
-        // Check if user has preferences set in Firestore
-        // This determines if they should be redirected to the preferences page.
-        const userDocRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userDocRef);
-        // A user is "new" if they don't have a document in our `users` collection.
-        setIsNewUser(!userDoc.exists() || !userDoc.data().preferences);
+        // Check if user has preferences set in Realtime Database
+        const dbRef = ref(db);
+        const snapshot = await get(child(dbRef, `users/${user.uid}`));
+        const userData = snapshot.val();
+        // A user is "new" if they don't have a record or preferences in our `users` node.
+        setIsNewUser(!snapshot.exists() || !userData.preferences);
       } else {
         setUser(null);
         setIsNewUser(null);

@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { ref, set, get, child, update } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/contexts/auth-context';
 import { generateSmartItinerary, type SmartItineraryInput, type SmartItineraryOutput } from '@/ai/flows/smart-itinerary-from-prompt';
@@ -46,10 +46,10 @@ export default function ItineraryPage() {
       if (!user) return;
       setIsLoading(true);
       try {
-        const userDocRef = doc(db, 'users', user.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists() && userDoc.data().itinerary) {
-          setItineraryOutput(userDoc.data().itinerary);
+        const userRef = ref(db, 'users/' + user.uid);
+        const snapshot = await get(child(userRef, 'itinerary'));
+        if (snapshot.exists()) {
+          setItineraryOutput(snapshot.val());
         }
       } catch (error) {
         console.error('Failed to load itinerary:', error);
@@ -67,8 +67,8 @@ export default function ItineraryPage() {
   const saveItinerary = async (itinerary: SmartItineraryOutput) => {
     if (!user) return;
     try {
-      const userDocRef = doc(db, 'users', user.uid);
-      await setDoc(userDocRef, { itinerary: itinerary }, { merge: true });
+      const userRef = ref(db, 'users/' + user.uid);
+      await update(userRef, { itinerary: itinerary });
     } catch (error) {
       console.error('Failed to save itinerary:', error);
       toast({
@@ -392,5 +392,3 @@ function ItineraryTimeline({ itinerary }: { itinerary: ItineraryDay[] }) {
     </div>
   );
 }
-
-    

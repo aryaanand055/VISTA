@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { doc, setDoc } from 'firebase/firestore';
+import { ref, set } from 'firebase/database';
 import { db, auth } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -53,18 +53,15 @@ export default function UserPreferencesPage() {
     }
 
     try {
-      // Note: We use setDoc with { merge: true } here. This creates the document
-      // if it doesn't exist, or merges the new data with any existing data
-      // if it does. This is useful for updating preferences later.
-      const userDocRef = doc(db, 'users', user.uid);
-      await setDoc(userDocRef, {
+      const userRef = ref(db, 'users/' + user.uid);
+      await set(userRef, {
         displayName: user.displayName,
         email: user.email,
         preferences: {
           interests,
           allergies,
         },
-      }, { merge: true });
+      });
 
       toast({
         title: 'Preferences Saved!',
