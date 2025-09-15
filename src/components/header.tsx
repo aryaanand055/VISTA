@@ -2,16 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, User, LayoutDashboard, Map, Users, BotMessageSquare, Bell, Newspaper, Home, ShoppingBag, Mountain } from 'lucide-react';
+import { Menu, BotMessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { navItems } from './sidebar';
@@ -43,7 +35,7 @@ export function Header() {
                   href={item.href}
                   className={cn(
                     'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
-                    pathname === item.href &amp;&amp; 'bg-muted text-primary'
+                    pathname === item.href && 'bg-muted text-primary'
                   )}
                 >
                   <item.icon className="h-5 w-5" />

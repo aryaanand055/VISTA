@@ -22,7 +22,7 @@ export const navItems = [
   { href: '/digital-id', icon: User, label: 'Digital ID' },
   { href: '/community', icon: Mountain, label: 'Community' },
   { href: '/places', icon: ShoppingBag, label: 'Places' },
-  { href: '/news', icon: Newspaper, label: 'News &amp; Alerts' },
+  { href: '/news', icon: Newspaper, label: 'News & Alerts' },
   { href: '/tracking', icon: Users, label: 'Family Tracking' },
 ];
 
@@ -38,8 +38,7 @@ export function Sidebar() {
     }
   }, []);
 
-  return (
-    <aside className="fixed left-0 top-0 hidden h-full w-64 flex-col border-r bg-card p-4 sm:flex">
+  return <aside className="fixed left-0 top-0 hidden h-full w-64 flex-col border-r bg-card p-4 sm:flex">
       <div className="mb-8 flex items-center gap-2">
         <BotMessageSquare className="h-8 w-8 text-primary" />
         <h1 className="font-headline text-2xl font-semibold text-foreground">Safe Passage</h1>
@@ -51,7 +50,7 @@ export function Sidebar() {
             href={item.href}
             className={cn(
               'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:bg-secondary hover:text-primary',
-              pathname.startsWith(item.href) &amp;&amp; 'bg-primary/10 text-primary'
+              pathname.startsWith(item.href) && 'bg-primary/10 text-primary'
             )}
           >
             <item.icon className="h-4 w-4" />
@@ -89,6 +88,5 @@ export function Sidebar() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    </aside>
-  );
+    </aside>;
 }
