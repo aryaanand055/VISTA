@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Shield, MapPin, Users, FerrisWheel, Sun, Cloudy, Map as MapIcon, Newspaper, AlertTriangle } from 'lucide-react';
 import Image from 'next/image';
@@ -39,7 +39,7 @@ export default function DashboardPage() {
 
       <div className="relative h-64 w-full overflow-hidden rounded-xl shadow-lg">
         <Image
-          src="https://media.audleytravel.com/-/media/images/home/indian-subcontinent/india/places/ss_1188853459_sunset_tea_gardens_darjeeling_3000x1000.jpg?q=79&amp;w=1920&amp;h=685"
+          src="https://media.audleytravel.com/-/media/images/home/indian-subcontinent/india/places/ss_1188853459_sunset_tea_gardens_darjeeling_3000x1000.jpg?q=79&w=1920&h=685"
           alt="Darjeeling Tea Gardens"
           fill
           style={{ objectFit: 'cover' }}
@@ -75,7 +75,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader>
             <CardDescription>Today's Plan</CardDescription>
-            <CardTitle className="font-headline">Sunrise &amp; Monasteries</CardTitle>
+            <CardTitle className="font-headline">Sunrise & Monasteries</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-start gap-4">
