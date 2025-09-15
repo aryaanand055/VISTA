@@ -1,4 +1,3 @@
-// components/FamilyMap.tsx
 "use client";
 
 import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
@@ -20,12 +19,21 @@ interface Props {
 }
 
 export default function FamilyMap({ userLocation, familyMembers }: Props) {
-  const getIcon = (url: string, size: number) =>
+  // create icons once
+  const userIcon = L.icon({
+    iconUrl: userLocation.iconUrl,
+    iconSize: [40, 40],
+    iconAnchor: [20, 40],
+    popupAnchor: [0, -40],
+    className: "rounded-full border-2 border-white shadow-md",
+  });
+
+  const getFamilyIcon = (url: string) =>
     L.icon({
       iconUrl: url,
-      iconSize: [size, size],
-      iconAnchor: [size / 2, size],
-      popupAnchor: [0, -size],
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32],
       className: "rounded-full border-2 border-white shadow-md",
     });
 
@@ -34,17 +42,16 @@ export default function FamilyMap({ userLocation, familyMembers }: Props) {
       center={[userLocation.lat, userLocation.lng]}
       zoom={14}
       scrollWheelZoom
-      className="h-full w-full rounded-lg"
+      style={{ height: "100%", width: "100%" }}
+      key="leaflet-map" // ensure React treats it as single instance
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
       />
+
       {/* User */}
-      <Marker
-        position={[userLocation.lat, userLocation.lng]}
-        icon={getIcon(userLocation.iconUrl, 40)}
-      >
+      <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
         <Popup><b>You</b></Popup>
       </Marker>
 
@@ -53,19 +60,17 @@ export default function FamilyMap({ userLocation, familyMembers }: Props) {
         <Marker
           key={member.name}
           position={[member.lat, member.lng]}
-          icon={getIcon(member.iconUrl, 32)}
+          icon={getFamilyIcon(member.iconUrl)}
         >
           <Popup>
             <b>{member.name}</b> ({member.relation})
             <br />
-            <span className={member.online ? "text-primary" : "text-muted-foreground"}>
-              {member.online ? "Online" : "Offline"}
-            </span>
+            {member.online ? <span className="text-primary">Online</span> : <span className="text-muted-foreground">Offline</span>}
           </Popup>
         </Marker>
       ))}
 
-      {/* Radius */}
+      {/* 1km radius */}
       <Circle
         center={[userLocation.lat, userLocation.lng]}
         radius={1000}
