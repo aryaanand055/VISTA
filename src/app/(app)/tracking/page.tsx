@@ -2,8 +2,8 @@
 
 import { useMemo } from 'react';
 import dynamic from 'next/dynamic';
-import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import type { Icon } from 'leaflet';
 
 const familyMembers = [
   { name: "Rohan Sharma", relation: "Spouse", lat: 26.9124, lng: 75.7873, online: true, iconUrl: "https://picsum.photos/seed/person2/48/48" },
@@ -21,17 +21,16 @@ export default function TrackingPage() {
   const Popup = useMemo(() => dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ssr: false }), []);
   const Circle = useMemo(() => dynamic(() => import('react-leaflet').then(mod => mod.Circle), { ssr: false }), []);
   
-  const getIcon = (url: string, size: number) => {
-    if (typeof window !== "undefined") {
-      return L.icon({
-        iconUrl: url,
-        iconSize: [size, size],
-        iconAnchor: [size / 2, size],
-        popupAnchor: [0, -size],
-        className: 'rounded-full'
-      });
-    }
-    return new L.Icon.Default();
+  const getIcon = (url: string, size: number): Icon => {
+    // Dynamically import leaflet only on the client-side
+    const L = require('leaflet');
+    return L.icon({
+      iconUrl: url,
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size],
+      popupAnchor: [0, -size],
+      className: 'rounded-full border-2 border-white shadow-md'
+    });
   };
 
   return (
@@ -43,7 +42,7 @@ export default function TrackingPage() {
         </div>
       </header>
 
-      <div className="h-[600px] w-full rounded-lg overflow-hidden border shadow">
+      <div className="h-[600px] w-full rounded-lg overflow-hidden border shadow-lg">
         <MapContainer
           center={[userLocation.lat, userLocation.lng]}
           zoom={14}
@@ -62,13 +61,13 @@ export default function TrackingPage() {
               <Popup>
                 <b>{member.name}</b> ({member.relation})
                 <br />
-                <span className={member.online ? 'text-green-600' : 'text-gray-500'}>
+                <span className={member.online ? 'text-primary' : 'text-muted-foreground'}>
                   {member.online ? "Online" : "Offline"}
                 </span>
               </Popup>
             </Marker>
           ))}
-          <Circle center={[userLocation.lat, userLocation.lng]} radius={1000} pathOptions={{ color: 'hsl(var(--primary))', fillOpacity: 0.1 }} />
+          <Circle center={[userLocation.lat, userLocation.lng]} radius={1000} pathOptions={{ color: 'hsl(var(--primary))', fillColor: 'hsl(var(--primary))', fillOpacity: 0.1, weight: 1 }} />
         </MapContainer>
       </div>
     </div>
