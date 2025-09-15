@@ -22,7 +22,7 @@ export default function DigitalIdPage() {
               data-ai-hint="qr code"
             />
             <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-white/80 p-2 text-center text-sm font-semibold opacity-0 backdrop-blur-sm transition-opacity hover:opacity-100">
-              Scan for verification at hotels & airports
+              Scan for verification at hotels &amp; transport hubs
             </div>
           </div>
           <div className="text-center sm:text-left">
@@ -50,14 +50,14 @@ export default function DigitalIdPage() {
               <Calendar className="mt-1 h-5 w-5 text-primary" />
               <div>
                 <p className="text-sm font-semibold">Trip Dates</p>
-                <p className="text-muted-foreground">Dec 10, 2024 - Dec 25, 2024</p>
+                <p className="text-muted-foreground">June 15, 2024 - June 22, 2024</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <Plane className="mt-1 h-5 w-5 text-primary" />
               <div>
-                <p className="text-sm font-semibold">Flight Info</p>
-                <p className="text-muted-foreground">6E-204, Arrival JAI</p>
+                <p className="text-sm font-semibold">Arrival Info</p>
+                <p className="text-muted-foreground">Flight UK-725, Bagdogra (IXB)</p>
               </div>
             </div>
             <div className="col-span-1 flex items-start gap-3 sm:col-span-2">

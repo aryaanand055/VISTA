@@ -25,32 +25,35 @@ import {
 import { sendSosAlert } from '@/ai/flows/sos-alert';
 
 const exampleItinerary: SmartItineraryOutput = {
-  title: 'Classic Jaipuri Holiday',
+  title: 'Darjeeling Delights',
   itinerary: [
     {
       day: 1,
-      theme: "Palaces & Forts",
+      theme: 'Arrival & Acclimatization',
       events: [
-        { time: '9:00 AM', activity: 'Visit the Hawa Mahal.', safetyScore: 90 },
-        { time: '1:00 PM', activity: 'Lunch near the palace, then head to City Palace.', safetyScore: 88 },
-        { time: '4:00 PM', activity: 'Explore the Jantar Mantar for sunset views.', safetyScore: 92 },
+        { time: '2:00 PM', activity: 'Arrive at Bagdogra Airport (IXB) and travel to Darjeeling.', safetyScore: 95 },
+        { time: '6:00 PM', activity: 'Check into hotel and take a leisurely stroll down the Mall Road.', safetyScore: 90 },
+        { time: '8:00 PM', activity: 'Dinner at Glenary\'s with classic continental food.', safetyScore: 88 },
       ],
     },
     {
       day: 2,
-      theme: 'Historic Steps & Shopping',
+      theme: 'Sunrise, Rails & Tea',
       events: [
-        { time: '10:00 AM - 2:00 PM', activity: 'Explore Amer Fort.', safetyScore: 85 },
-        { time: '4:00 PM', activity: 'Visit the Panna Meena Ka Kund stepwell.', safetyScore: 89 },
-        { time: '7:00 PM', activity: 'Dinner and shopping at Johari Bazaar.', safetyScore: 78 },
+        { time: '4:00 AM', activity: 'Drive to Tiger Hill for a spectacular sunrise over Kanchenjunga.', safetyScore: 85 },
+        { time: '8:00 AM', activity: 'Visit the Ghoom Monastery and Batasia Loop.', safetyScore: 92 },
+        { time: '12:00 PM', activity: 'Ride the famous Darjeeling Himalayan Railway (Toy Train).', safetyScore: 94 },
+        { time: '4:00 PM', activity: 'Tour a tea estate and participate in a tea tasting session.', safetyScore: 96 },
       ],
     },
   ],
+  explanation: 'This itinerary balances iconic Darjeeling experiences like the sunrise at Tiger Hill and the Toy Train with leisure time. Safety scores are generally high, but early morning travel to Tiger Hill requires a reliable driver.'
 };
 
 export default function ItineraryPage() {
   const [prompt, setPrompt] = useState('');
   const [itineraryOutput, setItineraryOutput] = useState<SmartItineraryOutput | null>(exampleItinerary);
+  const [optimizationPrompt, setOptimizationPrompt] = useState('');
   const [optimization, setOptimization] = useState<OptimizeExistingItineraryOutput | null>(null);
 
   const [isGenerating, setIsGenerating] = useState(false);
@@ -82,7 +85,11 @@ export default function ItineraryPage() {
     setIsOptimizing(true);
     setOptimization(null);
     try {
-      const result = await optimizeExistingItinerary({ itinerary: itineraryOutput.itinerary, location: 'Jaipur, India' });
+      const result = await optimizeExistingItinerary({ 
+        itinerary: itineraryOutput.itinerary, 
+        location: 'Darjeeling, India',
+        optimizationPrompt: optimizationPrompt
+      });
       setOptimization(result);
       toast({ title: 'Itinerary Optimized!', description: "We've found some safer and faster alternatives for you." });
     } catch (error) {
@@ -96,7 +103,7 @@ export default function ItineraryPage() {
   const handleSos = async () => {
     try {
       await sendSosAlert({
-        location: 'Near Hawa Mahal, Jaipur',
+        location: 'Near Mall Road, Darjeeling',
         itinerary: JSON.stringify(itineraryOutput?.itinerary, null, 2),
       });
       toast({
@@ -114,7 +121,7 @@ export default function ItineraryPage() {
     }
   };
   
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (event: React.ChangeEvent&lt;HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -130,8 +137,8 @@ export default function ItineraryPage() {
     try {
       // Attempt to parse as JSON, if not, treat as a text prompt
       const parsed = JSON.parse(text);
-      if (Array.isArray(parsed) && parsed.every(item => 'day' in item && 'events' in item)) {
-        setItineraryOutput({ title, itinerary: parsed });
+      if (Array.isArray(parsed) &amp;&amp; parsed.every(item => 'day' in item &amp;&amp; 'events' in item)) {
+        setItineraryOutput({ title, itinerary: parsed, explanation: 'Loaded from file.' });
       } else {
         setPrompt(text);
         handleGenerate();
@@ -168,7 +175,7 @@ export default function ItineraryPage() {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleSos}>Confirm & Send Alert</AlertDialogAction>
+              <AlertDialogAction onClick={handleSos}>Confirm &amp; Send Alert</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -179,8 +186,7 @@ export default function ItineraryPage() {
           <CardHeader>
             <CardTitle>Create New Itinerary</CardTitle>
             <CardDescription>
-              Describe your interests, budget, and desired activities. For example: "A 3-day trip to Jaipur, focusing on historical
-              forts, local markets, and authentic Rajasthani food."
+              Describe your interests, budget, and desired activities. For example: "A 3-day trip to Darjeeling, focusing on scenic views, local monasteries, and trying authentic Tibetan food."
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -234,7 +240,7 @@ export default function ItineraryPage() {
         </Card>
 
 
-        {isGenerating && (
+        {isGenerating &amp;&amp; (
           <Card className="lg:col-span-2">
             <CardContent className="p-8 text-center">
               <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
@@ -244,7 +250,7 @@ export default function ItineraryPage() {
           </Card>
         )}
 
-        {itineraryOutput && !isGenerating && (
+        {itineraryOutput &amp;&amp; !isGenerating &amp;&amp; (
           <Card className="lg:col-span-2">
             <CardHeader>
               <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -252,27 +258,55 @@ export default function ItineraryPage() {
                   <CardTitle>{itineraryOutput.title || 'Your Itinerary'}</CardTitle>
                   <CardDescription>Here is your current travel plan. You can optimize it for safety and efficiency.</CardDescription>
                 </div>
-                <Button onClick={handleOptimize} disabled={isOptimizing} variant="outline" className="w-full sm:w-auto">
-                  {isOptimizing ? <Loader2 className="animate-spin" /> : <Sparkles />}
-                  {isOptimizing ? 'Optimizing...' : 'Optimize'}
-                </Button>
               </div>
             </CardHeader>
             <CardContent>
+              {itineraryOutput.explanation &amp;&amp; (
+                <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
+                  <p><span className="font-semibold">AI Explanation:</span> {itineraryOutput.explanation}</p>
+                </div>
+              )}
               <div className="space-y-8">
-                {optimization?.optimizedItinerary ? (
-                  <>
+                 <ItineraryTimeline itinerary={itineraryOutput.itinerary} />
+              </div>
+
+              {/* Optimization Section */}
+              <div className="mt-8 rounded-lg border bg-background/50 p-6">
+                <h3 className="text-lg font-semibold flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary" /> Optimize Your Itinerary</h3>
+                <p className="text-muted-foreground text-sm mt-1">Tell the AI what you'd like to change. For example, "I want a more relaxed pace for Day 2" or "Find an alternative to Tiger Hill."</p>
+                <div className="mt-4 space-y-4">
+                  <Textarea 
+                    placeholder="e.g., 'Make the afternoon of Day 2 less crowded.'"
+                    value={optimizationPrompt}
+                    onChange={(e) => setOptimizationPrompt(e.target.value)}
+                  />
+                  <Button onClick={handleOptimize} disabled={isOptimizing} className="w-full sm:w-auto">
+                    {isOptimizing ? <Loader2 className="animate-spin" /> : <Sparkles />}
+                    {isOptimizing ? 'Optimizing...' : 'Optimize with AI'}
+                  </Button>
+                </div>
+              </div>
+
+              {isOptimizing &amp;&amp; (
+                <div className="p-8 text-center">
+                  <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+                  <p className="mt-2 text-muted-foreground">Analyzing real-time data...</p>
+                </div>
+              )}
+
+              {optimization &amp;&amp; (
+                 <div className="mt-8">
                     <h3 className="font-headline-xl flex items-center gap-2 font-semibold text-primary">
                       <Sparkles className="h-5 w-5" /> Optimized Suggestions
                     </h3>
                     <div className="mt-4 space-y-4 rounded-lg bg-primary/10 p-4">
                        <div className="font-semibold">Overall Safety Score: {optimization.safetyScore}/100</div>
-                        {optimization.riskAlerts && (
+                        {optimization.riskAlerts &amp;&amp; (
                         <p className="text-sm">
                             <span className="font-bold">Alerts:</span> {optimization.riskAlerts}
                         </p>
                         )}
-                        {optimization.crowdDensityInfo && (
+                        {optimization.crowdDensityInfo &amp;&amp; (
                         <p className="text-sm">
                             <span className="font-bold">Crowds:</span> {optimization.crowdDensityInfo}
                         </p>
@@ -292,17 +326,7 @@ export default function ItineraryPage() {
                         </div>
                     </div>
                     <ItineraryTimeline itinerary={optimization.optimizedItinerary} />
-                  </>
-                ) : (
-                  <ItineraryTimeline itinerary={itineraryOutput.itinerary} />
-                )}
-              </div>
-
-              {isOptimizing && (
-                <div className="p-8 text-center">
-                  <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
-                  <p className="mt-2 text-muted-foreground">Analyzing real-time data...</p>
-                </div>
+                  </div>
               )}
             </CardContent>
           </Card>
@@ -322,7 +346,7 @@ function ItineraryTimeline({ itinerary }: { itinerary: ItineraryDay[] }) {
     <div className="space-y-8">
       {itinerary.map((day) => (
         <div key={day.day}>
-          <h3 className="font-headline text-xl font-bold">Day {day.day}{day.theme && `: ${day.theme}`}</h3>
+          <h3 className="font-headline text-xl font-bold">Day {day.day}{day.theme &amp;&amp; `: ${day.theme}`}</h3>
           <div className="mt-4 border-l-2 border-primary pl-6">
             {day.events.map((event, eventIndex) => (
               <div key={eventIndex} className="relative mb-6">
@@ -330,7 +354,7 @@ function ItineraryTimeline({ itinerary }: { itinerary: ItineraryDay[] }) {
                 <div className="flex items-center gap-4">
                     <p className="w-28 font-semibold text-primary"><Clock className="inline h-4 w-4 mr-1"/>{event.time}</p>
                     <p className="flex-1">{event.activity}</p>
-                    {event.safetyScore && (
+                    {event.safetyScore &amp;&amp; (
                         <div className={`flex items-center gap-1 font-semibold ${getSafetyClass(event.safetyScore)}`}>
                             <Shield size={16} />
                             <span>{event.safetyScore}</span>

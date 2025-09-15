@@ -19,6 +19,7 @@ const OptimizeExistingItineraryInputSchema = z.object({
   timeConstraints: z.string().optional().describe('Time constraints for the itinerary.'),
   weatherConditions: z.string().optional().describe('The weather conditions during the trip.'),
   location: z.string().optional().describe('The current location of the tourist.'),
+  optimizationPrompt: z.string().optional().describe('A specific prompt from the user on what to change or optimize.'),
 });
 
 export type OptimizeExistingItineraryInput = z.infer<typeof OptimizeExistingItineraryInputSchema>;
@@ -45,9 +46,10 @@ const optimizeExistingItineraryPrompt = ai.definePrompt({
   output: {schema: OptimizeExistingItineraryOutputSchema},
   prompt: `You are an AI travel assistant that optimizes tourist itineraries.
 
-  Analyze the provided itinerary, preferences, time constraints, weather conditions, and location to suggest safer and faster alternatives.
-  Reorder the itinerary based on real-time data on crowd density, risk alerts, and weather conditions.
-  Calculate and provide an overall safety score for the optimized itinerary.
+  Analyze the provided itinerary, user preferences, and real-time data to suggest safer and faster alternatives.
+  If the user provides an optimization prompt, prioritize their request.
+
+  User's Optimization Request: {{{optimizationPrompt}}}
 
   Itinerary:
   \`\`\`json
@@ -59,7 +61,9 @@ const optimizeExistingItineraryPrompt = ai.definePrompt({
   Current Location: {{{location}}}
   
   Optimize the itinerary to ensure maximum safety and efficiency, while respecting the tourist's preferences and constraints.
+  Reorder the itinerary based on real-time data on crowd density, risk alerts, and weather conditions.
   Provide detailed information on crowd density, risk alerts, and alternative routes.
+  Calculate and provide an overall safety score for the optimized itinerary.
   The structure of the optimized itinerary must be the same as the input.
   `,
 });
@@ -72,6 +76,9 @@ const optimizeExistingItineraryFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await optimizeExistingItineraryPrompt(input);
-    return output!;
+    if (!output) {
+      throw new Error('The model failed to generate an optimized itinerary.');
+    }
+    return output;
   }
 );
