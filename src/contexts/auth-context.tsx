@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
+import { onAuthStateChanged, User } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import { Loader2 } from 'lucide-react';
@@ -26,9 +26,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (user) {
         setUser(user);
         // Check if user has preferences set in Firestore
+        // This determines if they should be redirected to the preferences page.
         const userDocRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userDocRef);
-        setIsNewUser(!userDoc.exists());
+        // A user is "new" if they don't have a document in our `users` collection.
+        setIsNewUser(!userDoc.exists() || !userDoc.data().preferences);
       } else {
         setUser(null);
         setIsNewUser(null);
@@ -41,6 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value = { user, loading, isNewUser };
 
+  // Render a global loading state while we check for an active user session.
   if (loading) {
     return (
         <div className="flex h-screen items-center justify-center">

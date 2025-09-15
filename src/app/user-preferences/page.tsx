@@ -53,6 +53,9 @@ export default function UserPreferencesPage() {
     }
 
     try {
+      // Note: We use setDoc with { merge: true } here. This creates the document
+      // if it doesn't exist, or merges the new data with any existing data
+      // if it does. This is useful for updating preferences later.
       const userDocRef = doc(db, 'users', user.uid);
       await setDoc(userDocRef, {
         displayName: user.displayName,

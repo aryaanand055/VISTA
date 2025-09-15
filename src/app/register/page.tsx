@@ -27,7 +27,9 @@ export default function RegisterPage() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: name });
-      router.push('/user-preferences');
+      // This will set the isNewUser flag in the auth context, causing a redirect
+      // to /user-preferences after login.
+      router.push('/');
     } catch (error: any) {
       toast({
         variant: 'destructive',
