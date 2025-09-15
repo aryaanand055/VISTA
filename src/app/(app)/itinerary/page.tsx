@@ -121,7 +121,7 @@ export default function ItineraryPage() {
     }
   };
   
-  const handleFileChange = (event: React.ChangeEvent&lt;HTMLInputElement>) => {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -133,11 +133,11 @@ export default function ItineraryPage() {
     }
   };
 
-  const handleCustomItinerary = (text: string, title: string = 'Custom Itinerary') => {
+  const handleCustomItinerary = (text: string, title = 'Custom Itinerary') => {
     try {
       // Attempt to parse as JSON, if not, treat as a text prompt
       const parsed = JSON.parse(text);
-      if (Array.isArray(parsed) &amp;&amp; parsed.every(item => 'day' in item &amp;&amp; 'events' in item)) {
+      if (Array.isArray(parsed) && parsed.every(item => 'day' in item && 'events' in item)) {
         setItineraryOutput({ title, itinerary: parsed, explanation: 'Loaded from file.' });
       } else {
         setPrompt(text);
@@ -240,7 +240,7 @@ export default function ItineraryPage() {
         </Card>
 
 
-        {isGenerating &amp;&amp; (
+        {isGenerating && (
           <Card className="lg:col-span-2">
             <CardContent className="p-8 text-center">
               <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
@@ -250,7 +250,7 @@ export default function ItineraryPage() {
           </Card>
         )}
 
-        {itineraryOutput &amp;&amp; !isGenerating &amp;&amp; (
+        {itineraryOutput && !isGenerating && (
           <Card className="lg:col-span-2">
             <CardHeader>
               <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -261,7 +261,7 @@ export default function ItineraryPage() {
               </div>
             </CardHeader>
             <CardContent>
-              {itineraryOutput.explanation &amp;&amp; (
+              {itineraryOutput.explanation && (
                 <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
                   <p><span className="font-semibold">AI Explanation:</span> {itineraryOutput.explanation}</p>
                 </div>
@@ -287,26 +287,26 @@ export default function ItineraryPage() {
                 </div>
               </div>
 
-              {isOptimizing &amp;&amp; (
+              {isOptimizing && (
                 <div className="p-8 text-center">
                   <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
                   <p className="mt-2 text-muted-foreground">Analyzing real-time data...</p>
                 </div>
               )}
 
-              {optimization &amp;&amp; (
+              {optimization && (
                  <div className="mt-8">
                     <h3 className="font-headline-xl flex items-center gap-2 font-semibold text-primary">
                       <Sparkles className="h-5 w-5" /> Optimized Suggestions
                     </h3>
                     <div className="mt-4 space-y-4 rounded-lg bg-primary/10 p-4">
                        <div className="font-semibold">Overall Safety Score: {optimization.safetyScore}/100</div>
-                        {optimization.riskAlerts &amp;&amp; (
+                        {optimization.riskAlerts && (
                         <p className="text-sm">
                             <span className="font-bold">Alerts:</span> {optimization.riskAlerts}
                         </p>
                         )}
-                        {optimization.crowdDensityInfo &amp;&amp; (
+                        {optimization.crowdDensityInfo && (
                         <p className="text-sm">
                             <span className="font-bold">Crowds:</span> {optimization.crowdDensityInfo}
                         </p>
@@ -346,7 +346,7 @@ function ItineraryTimeline({ itinerary }: { itinerary: ItineraryDay[] }) {
     <div className="space-y-8">
       {itinerary.map((day) => (
         <div key={day.day}>
-          <h3 className="font-headline text-xl font-bold">Day {day.day}{day.theme &amp;&amp; `: ${day.theme}`}</h3>
+          <h3 className="font-headline text-xl font-bold">Day {day.day}{day.theme && `: ${day.theme}`}</h3>
           <div className="mt-4 border-l-2 border-primary pl-6">
             {day.events.map((event, eventIndex) => (
               <div key={eventIndex} className="relative mb-6">
@@ -354,7 +354,7 @@ function ItineraryTimeline({ itinerary }: { itinerary: ItineraryDay[] }) {
                 <div className="flex items-center gap-4">
                     <p className="w-28 font-semibold text-primary"><Clock className="inline h-4 w-4 mr-1"/>{event.time}</p>
                     <p className="flex-1">{event.activity}</p>
-                    {event.safetyScore &amp;&amp; (
+                    {event.safetyScore && (
                         <div className={`flex items-center gap-1 font-semibold ${getSafetyClass(event.safetyScore)}`}>
                             <Shield size={16} />
                             <span>{event.safetyScore}</span>

@@ -49,7 +49,7 @@ export const getWeather = ai.defineTool(
     }
     
     // 1. Get lat/lon from location name
-    const geoUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(location)}&amp;limit=1&amp;appid=${apiKey}`;
+    const geoUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(location)}&limit=1&appid=${apiKey}`;
     let lat: number, lon: number;
 
     try {
@@ -66,13 +66,13 @@ export const getWeather = ai.defineTool(
     }
     
     // 2. Get weather forecast from lat/lon
-    const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&amp;lon=${lon}&amp;appid=${apiKey}&amp;units=metric`;
+    const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
 
     try {
       const forecastResponse = await fetch(forecastUrl);
       const forecastData = (await forecastResponse.json()) as any;
 
-      const dailyForecasts = new Map&lt;string, any>();
+      const dailyForecasts = new Map<string, any>();
 
       forecastData.list.forEach((item: any) => {
         const date = new Date(item.dt * 1000);
