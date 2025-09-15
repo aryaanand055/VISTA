@@ -1,11 +1,16 @@
+
+'use client';
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Shield, MapPin, Users, FerrisWheel, Sun, Cloudy, Map as MapIcon, Newspaper, AlertTriangle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
+import { useAuth } from '@/contexts/auth-context';
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const safetyScore = 92;
 
   const getSafetyClass = (score: number) => {
@@ -35,7 +40,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-headline text-3xl font-bold tracking-tight">Welcome, Priya!</h1>
+      <h1 className="font-headline text-3xl font-bold tracking-tight">Welcome, {user?.displayName || 'Traveller'}!</h1>
 
       <div className="relative h-64 w-full overflow-hidden rounded-xl shadow-lg">
         <Image
