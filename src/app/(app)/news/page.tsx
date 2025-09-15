@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -57,7 +58,7 @@ const mockNews: NewsArticle[] = [
 export default function NewsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [articles, setArticles] = useState&lt;NewsArticle[]>([]);
+  const [articles, setArticles] = useState<NewsArticle[]>([]);
 
   useEffect(() => {
     // Load initial articles
@@ -100,7 +101,7 @@ export default function NewsPage() {
               placeholder="Search for news (e.g., 'weather', 'traffic')..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' &amp;&amp; handleSearch()}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             />
             <Button onClick={handleSearch} disabled={isLoading}>
               {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}

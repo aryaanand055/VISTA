@@ -63,7 +63,7 @@ const placesData = [
 export default function PlacesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPlace, setSelectedPlace] = useState(placesData[0]);
-  const fileInputRef = useRef&lt;HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSearch = () => {
     if (!searchQuery) {
@@ -94,7 +94,7 @@ export default function PlacesPage() {
                     placeholder="e.g., 'Glenary's', 'Tiger Hill'"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' &amp;&amp; handleSearch()}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 />
                 <Button onClick={handleSearch}><Search className="h-4 w-4"/></Button>
             </div>
