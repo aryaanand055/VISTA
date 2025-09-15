@@ -1,10 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 
-const FamilyMap = dynamic(() => import("@/components/FamilyMap"), { 
-  ssr: false,
-  loading: () => <div className="h-full w-full rounded-lg bg-muted animate-pulse" />,
-});
+const FamilyMap = dynamic(() => import("@/components/FamilyMap"), { ssr: false });
 
 const familyMembers = [
   { name: "Rohan Sharma", relation: "Spouse", lat: 26.9124, lng: 75.7873, online: true, iconUrl: "https://picsum.photos/seed/person2/48/48" },
@@ -16,7 +13,7 @@ const userLocation = { lat: 26.9150, lng: 75.7890, iconUrl: "https://picsum.phot
 
 export default function TrackingPage() {
   return (
-    <div className="h-[600px] w-full rounded-lg border shadow-lg overflow-hidden">
+    <div className="h-[600px] w-full rounded-lg border shadow-lg">
       <FamilyMap userLocation={userLocation} familyMembers={familyMembers} />
     </div>
   );

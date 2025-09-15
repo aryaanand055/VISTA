@@ -1,10 +1,9 @@
 // components/FamilyMap.tsx
 "use client";
 
-import { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import type { Icon as LeafletIcon } from "leaflet";
+import L from "leaflet";
 
 interface Member {
   name: string;
@@ -21,30 +20,14 @@ interface Props {
 }
 
 export default function FamilyMap({ userLocation, familyMembers }: Props) {
-  const [L, setL] = useState<typeof import("leaflet") | null>(null);
-
-  useEffect(() => {
-    import("leaflet").then((leaflet) => {
-      setL(() => leaflet);
-    });
-  }, []);
-
-  const getIcon = (url: string, size: number): LeafletIcon | undefined => {
-    if (!L) return undefined;
-    return L.icon({
+  const getIcon = (url: string, size: number) =>
+    L.icon({
       iconUrl: url,
       iconSize: [size, size],
       iconAnchor: [size / 2, size],
       popupAnchor: [0, -size],
       className: "rounded-full border-2 border-white shadow-md",
     });
-  };
-  
-  const userIcon = getIcon(userLocation.iconUrl, 40);
-
-  if (!L || !userIcon) {
-    return <div className="h-full w-full rounded-lg bg-muted animate-pulse" />;
-  }
 
   return (
     <MapContainer
@@ -60,31 +43,27 @@ export default function FamilyMap({ userLocation, familyMembers }: Props) {
       {/* User */}
       <Marker
         position={[userLocation.lat, userLocation.lng]}
-        icon={userIcon}
+        icon={getIcon(userLocation.iconUrl, 40)}
       >
         <Popup><b>You</b></Popup>
       </Marker>
 
       {/* Family Members */}
-      {familyMembers.map((member) => {
-        const memberIcon = getIcon(member.iconUrl, 32);
-        if (!memberIcon) return null;
-        return (
-          <Marker
-            key={member.name}
-            position={[member.lat, member.lng]}
-            icon={memberIcon}
-          >
-            <Popup>
-              <b>{member.name}</b> ({member.relation})
-              <br />
-              <span className={member.online ? "text-primary" : "text-muted-foreground"}>
-                {member.online ? "Online" : "Offline"}
-              </span>
-            </Popup>
-          </Marker>
-        );
-      })}
+      {familyMembers.map((member) => (
+        <Marker
+          key={member.name}
+          position={[member.lat, member.lng]}
+          icon={getIcon(member.iconUrl, 32)}
+        >
+          <Popup>
+            <b>{member.name}</b> ({member.relation})
+            <br />
+            <span className={member.online ? "text-primary" : "text-muted-foreground"}>
+              {member.online ? "Online" : "Offline"}
+            </span>
+          </Popup>
+        </Marker>
+      ))}
 
       {/* Radius */}
       <Circle
