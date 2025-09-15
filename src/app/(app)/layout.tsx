@@ -5,25 +5,44 @@ import { Sidebar } from '@/components/sidebar';
 import { Header } from '@/components/header';
 import { PanicButton } from '@/components/panic-button';
 import { useAuth } from '@/contexts/auth-context';
-import { redirect } from 'next/navigation';
+import { redirect, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
+
+const privateRoutes = [
+  '/itinerary',
+  '/digital-id',
+  '/tracking',
+  '/community',
+];
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const { user, loading, isNewUser } = useAuth();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!loading) {
-      if (!user) {
-        redirect('/login');
-      } else if (isNewUser) {
-        redirect('/user-preferences');
+      if (user) {
+        // If user is logged in, but new, redirect to preferences
+        if (isNewUser) {
+          redirect('/user-preferences');
+        }
+      } else {
+        // If user is not logged in and tries to access a private route, redirect to login
+        if (privateRoutes.some(route => pathname.startsWith(route))) {
+          redirect('/login');
+        }
       }
     }
-  }, [user, loading, isNewUser]);
+  }, [user, loading, isNewUser, pathname]);
 
-  if (loading || !user || isNewUser) {
-    // You can show a loading spinner here
-    return null;
+  // Always show a loading spinner while checking auth state, especially for private routes
+  if (loading && privateRoutes.some(route => pathname.startsWith(route))) {
+    return null; // or a loading spinner
+  }
+
+  // If user is not logged in but trying to access a private page, show loader until redirect kicks in
+  if (!loading && !user && privateRoutes.some(route => pathname.startsWith(route))) {
+    return null; // or a loading spinner
   }
 
   return (
@@ -37,7 +56,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           </div>
         </main>
       </div>
-      <PanicButton />
+      {user && <PanicButton />}
     </div>
   );
 }

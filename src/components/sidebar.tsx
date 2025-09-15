@@ -63,32 +63,45 @@ export function Sidebar() {
 
       {/* Sidebar Footer for Profile and Notifications */}
       <div className="mt-auto flex flex-col gap-2">
-         <Button variant="ghost" className="justify-start gap-3 px-3">
-          <Bell className="h-4 w-4" />
-          <span className="font-medium">Notifications</span>
-        </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant='ghost' className="h-auto justify-start gap-3 px-3 py-2">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={user?.photoURL || "https://picsum.photos/seed/person1/100/100"} alt={user?.displayName || 'User'} />
-                  <AvatarFallback>{user?.displayName?.charAt(0) || 'U'}</AvatarFallback>
-                </Avatar>
-                <div className="text-left">
-                  <p className="font-semibold text-sm">{user?.displayName}</p>
-                </div>
-                <ChevronUp className="ml-auto h-4 w-4 text-muted-foreground" />
+        {user ? (
+          <>
+            <Button variant="ghost" className="justify-start gap-3 px-3">
+              <Bell className="h-4 w-4" />
+              <span className="font-medium">Notifications</span>
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" side="top" className="mb-2 w-56">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem><Settings className="mr-2 h-4 w-4" /><span>Settings</span></DropdownMenuItem>
-            <DropdownMenuItem><LifeBuoy className="mr-2 h-4 w-4" /><span>Support</span></DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}><LogOut className="mr-2 h-4 w-4" /><span>Logout</span></DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant='ghost' className="h-auto justify-start gap-3 px-3 py-2">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user?.photoURL || "https://picsum.photos/seed/person1/100/100"} alt={user?.displayName || 'User'} />
+                      <AvatarFallback>{user?.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                    </Avatar>
+                    <div className="text-left">
+                      <p className="font-semibold text-sm">{user?.displayName}</p>
+                    </div>
+                    <ChevronUp className="ml-auto h-4 w-4 text-muted-foreground" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" side="top" className="mb-2 w-56">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem><Settings className="mr-2 h-4 w-4" /><span>Settings</span></DropdownMenuItem>
+                <DropdownMenuItem><LifeBuoy className="mr-2 h-4 w-4" /><span>Support</span></DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}><LogOut className="mr-2 h-4 w-4" /><span>Logout</span></DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
+        ) : (
+          <div className="space-y-2">
+             <Link href="/login" className="w-full">
+              <Button className="w-full">Login</Button>
+             </Link>
+             <Link href="/register" className="w-full">
+              <Button variant="outline" className="w-full">Sign Up</Button>
+             </Link>
+          </div>
+        )}
       </div>
     </aside>
     );

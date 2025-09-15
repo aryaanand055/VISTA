@@ -3,7 +3,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Shield, MapPin, Users, FerrisWheel, Sun, Cloudy, Map as MapIcon, Newspaper, AlertTriangle } from 'lucide-react';
+import { Shield, MapPin, Users, FerrisWheel, Sun, Cloudy, Map as MapIcon, Newspaper, AlertTriangle, LogIn } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
@@ -62,20 +62,35 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="flex flex-col">
-          <CardHeader>
-            <CardDescription className="flex items-center justify-between">
-              <span>Overall Safety Score</span>
-              <Shield className={`h-5 w-5 ${getSafetyClass(safetyScore)}`} />
-            </CardDescription>
-            <CardTitle className={`font-headline text-5xl ${getSafetyClass(safetyScore)}`}>{safetyScore}/100</CardTitle>
-          </CardHeader>
-          <CardContent className="flex-grow">
-            <p className="text-sm text-muted-foreground">
-              Based on real-time data for weather, local alerts, and crowd density.
-            </p>
-          </CardContent>
-        </Card>
+        {user ? (
+          <Card className="flex flex-col">
+            <CardHeader>
+              <CardDescription className="flex items-center justify-between">
+                <span>Overall Safety Score</span>
+                <Shield className={`h-5 w-5 ${getSafetyClass(safetyScore)}`} />
+              </CardDescription>
+              <CardTitle className={`font-headline text-5xl ${getSafetyClass(safetyScore)}`}>{safetyScore}/100</CardTitle>
+            </CardHeader>
+            <CardContent className="flex-grow">
+              <p className="text-sm text-muted-foreground">
+                Based on real-time data for weather, local alerts, and crowd density.
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="flex flex-col items-center justify-center text-center">
+            <CardHeader>
+              <CardTitle className="font-headline flex items-center gap-2"><Shield /> Safety Score</CardTitle>
+            </CardHeader>
+            <CardContent className="flex-grow">
+              <p className="text-muted-foreground">Log in to view your personalized, real-time safety score based on your itinerary and location.</p>
+            </CardContent>
+            <CardFooter>
+                <Link href="/login" className="w-full"><Button className="w-full"><LogIn className="mr-2 h-4 w-4" /> Login to View</Button></Link>
+            </CardFooter>
+          </Card>
+        )}
+
 
         <Card>
           <CardHeader>
@@ -162,7 +177,9 @@ export default function DashboardPage() {
                   <MapIcon />
                   <span>Smart Itinerary</span>
                 </CardTitle>
-                <CardDescription>Generate or optimize your travel plans with AI.</CardDescription>
+                <CardDescription>
+                  {user ? "Generate or optimize your travel plans with AI." : "Log in to generate AI-powered travel itineraries."}
+                </CardDescription>
               </CardHeader>
             </Link>
           </Card>

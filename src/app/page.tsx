@@ -10,15 +10,9 @@ export default function Home() {
 
   useEffect(() => {
     if (!loading) {
-      if (user) {
-        if (isNewUser) {
-          redirect('/user-preferences');
-        } else {
-          redirect('/dashboard');
-        }
-      } else {
-        redirect('/login');
-      }
+      // Always redirect to dashboard as the main entry point for both guests and users.
+      // The dashboard and layout will handle further redirects if needed.
+      redirect('/dashboard');
     }
   }, [user, loading, isNewUser]);
 
