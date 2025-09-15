@@ -1,100 +1,75 @@
-'use client';
-import Image from 'next/image';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { MapPin } from 'lucide-react';
+"use client";
+
+import { useMemo } from 'react';
+import dynamic from 'next/dynamic';
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
 const familyMembers = [
-  { name: 'Rohan Sharma', relation: 'Spouse', avatar: 'https://picsum.photos/seed/person2/100/100', hint: 'man portrait', status: 'Near Hawa Mahal', online: true, color: 'hsl(var(--chart-1))' },
-  { name: 'Aarav Sharma', relation: 'Son', avatar: 'https://picsum.photos/seed/person3/100/100', hint: 'boy portrait', status: 'At City Palace', online: true, color: 'hsl(var(--chart-3))'  },
-  { name: 'Ananya Sharma', relation: 'Daughter', avatar: 'https://picsum.photos/seed/person4/100/100', hint: 'girl portrait', status: 'Offline', online: false, color: 'hsl(var(--muted))' },
+  { name: "Rohan Sharma", relation: "Spouse", lat: 26.1445, lng: 91.7362, online: true, iconUrl: "https://cdn-icons-png.flaticon.com/512/1077/1077012.png" },
+  { name: "Aarav Sharma", relation: "Son", lat: 26.1480, lng: 91.7420, online: true, iconUrl: "https://cdn-icons-png.flaticon.com/512/1077/1077012.png" },
+  { name: "Ananya Sharma", relation: "Daughter", lat: 26.1410, lng: 91.7320, online: false, iconUrl: "https://cdn-icons-png.flaticon.com/512/1077/1077063.png" },
 ];
 
+const userLocation = { lat: 26.1450, lng: 91.7390 };
+const userIconUrl = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
 export default function TrackingPage() {
+  const Map = useMemo(() => dynamic(() => import('@/components/map'), { 
+    loading: () => <div className="h-full w-full bg-muted animate-pulse" />,
+    ssr: false 
+  }), []);
+
+  const getIcon = (url: string, size: number) => {
+    if (typeof window !== "undefined") {
+      return L.icon({
+        iconUrl: url,
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size],
+      });
+    }
+    // Return a dummy icon for server-side rendering
+    return new L.Icon.Default();
+  };
+
   return (
     <div className="space-y-6">
       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="font-headline text-3xl font-bold tracking-tight">Family Tracking</h1>
-          <p className="text-muted-foreground">Share your location and see where your family is.</p>
-        </div>
-        <div className="flex items-center space-x-2 rounded-lg border bg-card p-3">
-          <Switch id="share-location" defaultChecked />
-          <Label htmlFor="share-location" className="font-medium">
-            Share My Location
-          </Label>
+          <p className="text-muted-foreground">Live map of your family members' locations.</p>
         </div>
       </header>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="relative lg:col-span-2">
-          <Card>
-            <CardContent className="p-0">
-              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg">
-                <Image
-                  src="https://picsum.photos/seed/map-jaipur/1200/900"
-                  alt="Map of Jaipur"
-                  fill
-                  style={{ objectFit: 'cover' }}
-                  data-ai-hint="street map jaipur"
-                />
-                {/* Mock pins */}
-                <div className="absolute top-[40%] left-[50%] -translate-x-1/2 -translate-y-1/2">
-                  <MapPin className="h-8 w-8 text-primary drop-shadow-md" fill="currentColor" />
-                  <span className="relative -right-6 -top-9 flex h-3 w-3">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
-                    <span className="relative inline-flex h-3 w-3 rounded-full bg-primary"></span>
-                  </span>
-                  <div className="mt-1 -ml-4 rounded-md bg-card p-2 text-center shadow-lg">
-                    <p className="text-sm font-semibold">You</p>
-                  </div>
-                </div>
-                <div className="absolute top-[30%] left-[30%] -translate-x-1/2 -translate-y-1/2">
-                  <MapPin className="h-6 w-6 drop-shadow-md" fill={familyMembers[0].color} stroke="white" strokeWidth={1} />
-                   <div className="mt-1 -ml-4 rounded-md bg-card p-1 text-center shadow-lg">
-                    <p className="text-xs font-semibold">{familyMembers[0].name.split(' ')[0]}</p>
-                  </div>
-                </div>
-                <div className="absolute top-[60%] left-[65%] -translate-x-1/2 -translate-y-1/2">
-                  <MapPin className="h-6 w-6 drop-shadow-md" fill={familyMembers[1].color} stroke="white" strokeWidth={1}/>
-                   <div className="mt-1 -ml-4 rounded-md bg-card p-1 text-center shadow-lg">
-                    <p className="text-xs font-semibold">{familyMembers[1].name.split(' ')[0]}</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Family Members</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {familyMembers.map((member) => (
-              <div key={member.name} className="flex items-center gap-4">
-                <div className="relative">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={member.avatar} alt={member.name} data-ai-hint={member.hint} />
-                    <AvatarFallback>
-                      {member.name.charAt(0)}
-                      {member.name.split(' ')[1]?.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  {member.online && (
-                    <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-card bg-[hsl(var(--chart-2))]" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold">{member.name}</p>
-                  <p className={`text-sm ${member.online ? 'text-muted-foreground' : 'text-destructive'}`}>{member.status}</p>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+      <div className="h-[600px] w-full rounded-lg overflow-hidden border shadow">
+        <Map
+          center={[userLocation.lat, userLocation.lng]}
+          zoom={15}
+          scrollWheelZoom={true}
+          className="h-full w-full"
+        >
+          {({ TileLayer, Marker, Popup, Circle }) => (
+            <>
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              />
+              <Marker position={[userLocation.lat, userLocation.lng]} icon={getIcon(userIconUrl, 32)}>
+                <Popup><b>You</b> are here.</Popup>
+              </Marker>
+              {familyMembers.map((member) => (
+                <Marker key={member.name} position={[member.lat, member.lng]} icon={getIcon(member.iconUrl, 28)}>
+                  <Popup>
+                    <b>{member.name}</b> ({member.relation})
+                    <br />
+                    {member.online ? "Online" : "Offline"}
+                  </Popup>
+                </Marker>
+              ))}
+              <Circle center={[userLocation.lat, userLocation.lng]} radius={1000} pathOptions={{ color: 'blue', fillOpacity: 0.1 }} />
+            </>
+          )}
+        </Map>
       </div>
     </div>
   );
