@@ -22,7 +22,7 @@ export default function TrackingPage() {
   const Circle = useMemo(() => dynamic(() => import('react-leaflet').then(mod => mod.Circle), { ssr: false }), []);
   
   const getIcon = (url: string, size: number): Icon => {
-    // Dynamically import leaflet only on the client-side
+    // This function will only be called on the client now.
     const L = require('leaflet');
     return L.icon({
       iconUrl: url,
