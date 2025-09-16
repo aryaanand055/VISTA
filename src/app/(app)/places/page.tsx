@@ -1,11 +1,11 @@
 
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/componentsui/avatar';
 import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
 import { Search, Star, Camera, ThumbsUp, MessageSquare, MapPin, Sparkles, Loader2 } from 'lucide-react';
@@ -14,79 +14,112 @@ import { findPlaces } from '@/ai/flows/find-places';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/auth-context';
 
-const initialPlacesData = [
-  {
-    id: 1,
-    name: 'Glenary\'s Bakery & Cafe',
-    category: 'Cafe & Restaurant',
-    rating: 4.6,
-    reviewCount: 3800,
-    address: 'Nehru Road, Darjeeling',
-    images: [
-      'https://picsum.photos/seed/glenarys1/800/600',
-      'https://picsum.photos/seed/glenarys2/800/600',
-      'https://picsum.photos/seed/glenarys3/800/600',
-    ],
-    justification: "A famous colonial-era restaurant known for its bakery and views.",
-    reviews: [
+const initialPlacesData = {
+    'Darjeeling': [
       {
-        author: 'Rohan',
-        avatar: 'https://picsum.photos/seed/person2/48/48',
-        rating: 5,
-        comment: 'An absolute must-visit in Darjeeling! The bakery items are fresh and delicious. The view from the upstairs restaurant is breathtaking. A bit crowded, but worth it.',
+        id: 1,
+        name: 'Glenary\'s Bakery & Cafe',
+        category: 'Cafe & Restaurant',
+        rating: 4.6,
+        reviewCount: 3800,
+        address: 'Nehru Road, Darjeeling',
+        images: [
+          'https://picsum.photos/seed/glenarys1/800/600',
+          'https://picsum.photos/seed/glenarys2/800/600',
+          'https://picsum.photos/seed/glenarys3/800/600',
+        ],
+        justification: "A famous colonial-era restaurant known for its bakery and views.",
+        reviews: [
+          {
+            author: 'Rohan',
+            avatar: 'https://picsum.photos/seed/person2/48/48',
+            rating: 5,
+            comment: 'An absolute must-visit in Darjeeling! The bakery items are fresh and delicious. The view from the upstairs restaurant is breathtaking. A bit crowded, but worth it.',
+          },
+          {
+            author: 'Ananya',
+            avatar: 'https://picsum.photos/seed/person4/48/48',
+            rating: 4,
+            comment: 'Great place for breakfast. Their English breakfast is famous for a reason. The service can be a bit slow when it\'s busy.',
+          },
+        ],
       },
       {
-        author: 'Ananya',
-        avatar: 'https://picsum.photos/seed/person4/48/48',
-        rating: 4,
-        comment: 'Great place for breakfast. Their English breakfast is famous for a reason. The service can be a bit slow when it\'s busy.',
-      },
+        id: 2,
+        name: 'Himalayan Mountaineering Institute',
+        category: 'Museum & Institution',
+        rating: 4.8,
+        reviewCount: 5200,
+        address: 'Jawahar Parbat, Darjeeling',
+        images: [
+            'https://picsum.photos/seed/hmi1/800/600',
+            'https://picsum.photos/seed/hmi2/800/600',
+        ],
+        justification: "An inspiring museum about the history of mountaineering.",
+        reviews: [
+             {
+            author: 'Tenzin',
+            avatar: 'https://picsum.photos/seed/person5/48/48',
+            rating: 5,
+            comment: 'A truly inspiring place. The museum is incredibly well-maintained and provides a fascinating look into the history of mountaineering. The Everest section is a highlight.',
+          },
+        ]
+      }
     ],
-  },
-  {
-    id: 2,
-    name: 'Himalayan Mountaineering Institute',
-    category: 'Museum & Institution',
-    rating: 4.8,
-    reviewCount: 5200,
-    address: 'Jawahar Parbat, Darjeeling',
-    images: [
-        'https://picsum.photos/seed/hmi1/800/600',
-        'https://picsum.photos/seed/hmi2/800/600',
-    ],
-    justification: "An inspiring museum about the history of mountaineering.",
-    reviews: [
-         {
-        author: 'Tenzin',
-        avatar: 'https://picsum.photos/seed/person5/48/48',
-        rating: 5,
-        comment: 'A truly inspiring place. The museum is incredibly well-maintained and provides a fascinating look into the history of mountaineering. The Everest section is a highlight.',
-      },
+    'default': [
+        {
+        id: 10,
+        name: 'Default Cafe',
+        category: 'Cafe',
+        rating: 4.5,
+        reviewCount: 100,
+        address: '123 Main St, Anytown',
+        images: ['https://picsum.photos/seed/default_cafe/800/600'],
+        justification: 'A popular local spot.',
+        reviews: [],
+        }
     ]
-  }
-];
+};
 
 export default function PlacesPage() {
+  const { location } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
-  const [places, setPlaces] = useState<any[]>(initialPlacesData);
-  const [selectedPlace, setSelectedPlace] = useState<any>(initialPlacesData[0]);
+  const [places, setPlaces] = useState<any[]>([]);
+  const [selectedPlace, setSelectedPlace] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
+  useEffect(() => {
+    const defaultPlaces = initialPlacesData[location as keyof typeof initialPlacesData] || initialPlacesData.default;
+    setPlaces(defaultPlaces);
+    setSelectedPlace(defaultPlaces[0]);
+  }, [location]);
+
   const handleSearch = async () => {
     if (!searchQuery) {
-        setPlaces(initialPlacesData);
-        setSelectedPlace(initialPlacesData[0]);
+        const defaultPlaces = initialPlacesData[location as keyof typeof initialPlacesData] || initialPlacesData.default;
+        setPlaces(defaultPlaces);
+        setSelectedPlace(defaultPlaces[0]);
         return;
     }
+    if (!location) {
+        toast({
+            title: "No location set",
+            description: "Please set a location in your preferences to search for places.",
+            variant: "destructive"
+        });
+        return;
+    }
+
     setIsLoading(true);
     setSelectedPlace(null);
     setPlaces([]);
 
     try {
-        const result = await findPlaces({ query: searchQuery });
+        const result = await findPlaces({ query: searchQuery, location });
         if (result.places && result.places.length > 0) {
             setPlaces(result.places.map(p => ({...p, reviews: []}))); // Reviews are not generated by this flow
             setSelectedPlace(result.places[0]);
@@ -95,8 +128,9 @@ export default function PlacesPage() {
                 title: "No places found",
                 description: "The AI couldn't find any recommendations for your query. Try being more specific!",
             });
-            setPlaces(initialPlacesData);
-            setSelectedPlace(initialPlacesData[0]);
+            const defaultPlaces = initialPlacesData[location as keyof typeof initialPlacesData] || initialPlacesData.default;
+            setPlaces(defaultPlaces);
+            setSelectedPlace(defaultPlaces[0]);
         }
     } catch(error) {
         console.error("Failed to find places:", error);
@@ -105,8 +139,9 @@ export default function PlacesPage() {
             description: "Something went wrong while searching for places. Please try again.",
             variant: "destructive",
         });
-        setPlaces(initialPlacesData);
-        setSelectedPlace(initialPlacesData[0]);
+        const defaultPlaces = initialPlacesData[location as keyof typeof initialPlacesData] || initialPlacesData.default;
+        setPlaces(defaultPlaces);
+        setSelectedPlace(defaultPlaces[0]);
     } finally {
         setIsLoading(false);
     }
@@ -123,7 +158,7 @@ export default function PlacesPage() {
         <Card>
           <CardHeader>
             <CardTitle className="font-headline flex items-center gap-2"><Sparkles className="text-primary"/> AI Place Finder</CardTitle>
-            <CardDescription>Use natural language to find places. Try "quiet cafe with good view" or "place to buy local tea".</CardDescription>
+            <CardDescription>Use natural language to find places in {location}. Try "quiet cafe with good view" or "place to buy local tea".</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex w-full items-center space-x-2">

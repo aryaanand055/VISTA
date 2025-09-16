@@ -11,6 +11,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getNews } from '@/ai/tools/news';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/auth-context';
 
 interface NewsArticle {
   title: string;
@@ -22,13 +23,14 @@ interface NewsArticle {
 }
 
 export default function NewsPage() {
-  const [searchQuery, setSearchQuery] = useState('Darjeeling travel');
+  const { location } = useAuth();
+  const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const { toast } = useToast();
 
   const handleSearch = async (query?: string) => {
-    const finalQuery = query || searchQuery;
+    const finalQuery = query || searchQuery || `${location} travel`;
     if (!finalQuery) {
       toast({ title: 'Search query is empty', variant: 'destructive' });
       return;
@@ -52,10 +54,12 @@ export default function NewsPage() {
   };
 
   useEffect(() => {
-    // Load initial articles on page load
-    handleSearch('Darjeeling travel safety');
+    if (location) {
+      // Load initial articles on page load
+      handleSearch(`${location} travel safety`);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [location]);
 
   return (
     <div className="space-y-6">
@@ -65,7 +69,7 @@ export default function NewsPage() {
           News &amp; Alerts
         </h1>
         <p className="text-muted-foreground">
-          Stay updated with the latest news and travel advisories for Darjeeling and surrounding areas.
+          Stay updated with the latest news and travel advisories for {location} and surrounding areas.
         </p>
       </header>
 
@@ -90,7 +94,7 @@ export default function NewsPage() {
       {isLoading ? (
         <div className="text-center p-8">
             <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
-            <p className="mt-4 text-muted-foreground">Fetching latest news...</p>
+            <p className="mt-4 text-muted-foreground">Fetching latest news for {location}...</p>
         </div>
       ) : articles.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

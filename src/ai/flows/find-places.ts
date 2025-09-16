@@ -23,6 +23,7 @@ const PlaceSchema = z.object({
 
 const FindPlacesInputSchema = z.object({
   query: z.string().describe('A natural language query from a user describing what kind of place they want to find.'),
+  location: z.string().describe('The city or area the user is asking about.'),
 });
 export type FindPlacesInput = z.infer<typeof FindPlacesInputSchema>;
 
@@ -39,7 +40,7 @@ const prompt = ai.definePrompt({
   name: 'findPlacesPrompt',
   input: { schema: FindPlacesInputSchema },
   output: { schema: FindPlacesOutputSchema },
-  prompt: `You are a local guide for Darjeeling. A user is asking for recommendations.
+  prompt: `You are a local guide for {{{location}}}. A user is asking for recommendations.
   Based on their query, find relevant places. Provide a justification for each recommendation.
   Generate placeholder image URLs from picsum.photos.
 

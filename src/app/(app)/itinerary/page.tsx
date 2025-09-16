@@ -30,7 +30,7 @@ import { sendSosAlert } from '@/ai/flows/sos-alert';
 import Link from 'next/link';
 
 export default function ItineraryPage() {
-  const { user } = useAuth();
+  const { user, location, setLocation } = useAuth();
   const [prompt, setPrompt] = useState('');
   const [itineraryOutput, setItineraryOutput] = useState<SmartItineraryOutput | null>(null);
   const [optimizationPrompt, setOptimizationPrompt] = useState('');
@@ -44,7 +44,10 @@ export default function ItineraryPage() {
 
   useEffect(() => {
     const loadItinerary = async () => {
-      if (!user) return;
+      if (!user) {
+        setIsLoading(false);
+        return
+      };
       setIsLoading(true);
       try {
         const userRef = ref(db, 'users/' + user.uid);
@@ -89,8 +92,12 @@ export default function ItineraryPage() {
     setItineraryOutput(null);
     setOptimization(null);
     try {
-      const result = await generateSmartItinerary({ prompt });
+      const result = await generateSmartItinerary({ prompt, location });
       setItineraryOutput(result);
+      // If the AI generated an itinerary for a new location, update it in the user's profile
+      if (result.location && result.location.toLowerCase() !== location?.toLowerCase()) {
+        setLocation(result.location);
+      }
       await saveItinerary(result);
     } catch (error) {
       console.error(error);
@@ -107,7 +114,7 @@ export default function ItineraryPage() {
     try {
       const result = await optimizeExistingItinerary({ 
         itinerary: itineraryOutput.itinerary, 
-        location: 'Darjeeling, India',
+        location: location,
         optimizationPrompt: optimizationPrompt
       });
       setOptimization(result);
@@ -123,7 +130,7 @@ export default function ItineraryPage() {
   const handleSos = async () => {
     try {
       await sendSosAlert({
-        location: 'Near Mall Road, Darjeeling',
+        location: `Last known location near ${itineraryOutput?.itinerary?.[0]?.events?.[0]?.activity || 'unknown area'} in ${location}`,
         itinerary: JSON.stringify(itineraryOutput?.itinerary, null, 2),
       });
       toast({
@@ -159,7 +166,7 @@ export default function ItineraryPage() {
       // Attempt to parse as JSON, if not, treat as a text prompt
       const parsed = JSON.parse(text);
       if (Array.isArray(parsed) && parsed.every(item => 'day' in item && 'events' in item)) {
-        customItinerary = { title, itinerary: parsed, explanation: 'Loaded from file.' };
+        customItinerary = { title, location: location || 'Unknown', itinerary: parsed, explanation: 'Loaded from file.' };
         setItineraryOutput(customItinerary);
         await saveItinerary(customItinerary);
       } else {
@@ -180,7 +187,7 @@ export default function ItineraryPage() {
       <header className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
           <h1 className="font-headline text-3xl font-bold tracking-tight">Smart Itinerary</h1>
-          <p className="text-muted-foreground">Let our AI craft the perfect, safest journey for you.</p>
+          <p className="text-muted-foreground">Let our AI craft the perfect, safest journey for you in {location}.</p>
         </div>
         <AlertDialog>
           <AlertDialogTrigger asChild>
@@ -209,7 +216,7 @@ export default function ItineraryPage() {
           <CardHeader>
             <CardTitle>Create New Itinerary</CardTitle>
             <CardDescription>
-              Describe your interests, budget, and desired activities. For example: "A 3-day trip to Darjeeling, focusing on scenic views, local monasteries, and trying authentic Tibetan food."
+              Describe your interests, budget, and desired activities. For example: "A 3-day trip to {location}, focusing on scenic views, local monasteries, and trying authentic local food."
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -278,7 +285,7 @@ export default function ItineraryPage() {
               <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <CardTitle>{itineraryOutput.title || 'Your Itinerary'}</CardTitle>
-                  <CardDescription>Here is your current travel plan. You can optimize it for safety and efficiency.</CardDescription>
+                  <CardDescription>Here is your current travel plan for {itineraryOutput.location}. You can optimize it for safety and efficiency.</CardDescription>
                 </div>
               </div>
             </CardHeader>
@@ -289,7 +296,7 @@ export default function ItineraryPage() {
                 </div>
               )}
               <div className="space-y-8">
-                 <ItineraryTimeline itinerary={itineraryOutput.itinerary} />
+                 <ItineraryTimeline itinerary={itineraryOutput.itinerary} location={itineraryOutput.location} />
               </div>
 
               {/* Optimization Section */}
@@ -349,7 +356,7 @@ export default function ItineraryPage() {
                         </Button>
                         </div>
                     </div>
-                    <ItineraryTimeline itinerary={optimization.optimizedItinerary} />
+                    <ItineraryTimeline itinerary={optimization.optimizedItinerary} location={itineraryOutput.location} />
                   </div>
               )}
             </CardContent>
@@ -360,7 +367,7 @@ export default function ItineraryPage() {
   );
 }
 
-function ItineraryTimeline({ itinerary }: { itinerary: ItineraryDay[] }) {
+function ItineraryTimeline({ itinerary, location }: { itinerary: ItineraryDay[], location: string }) {
     const getSafetyClass = (score: number) => {
         if (score > 80) return 'text-primary';
         if (score > 60) return 'text-accent';
@@ -384,7 +391,7 @@ function ItineraryTimeline({ itinerary }: { itinerary: ItineraryDay[] }) {
                             <span>{event.safetyScore}</span>
                         </div>
                     )}
-                    <Link href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(event.activity + ', Darjeeling')}`} target="_blank" rel="noopener noreferrer">
+                    <Link href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(event.activity + ', ' + location)}`} target="_blank" rel="noopener noreferrer">
                       <Button variant="ghost" size="icon">
                         <MapPin className="h-4 w-4" />
                       </Button>

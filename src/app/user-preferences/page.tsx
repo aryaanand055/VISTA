@@ -3,12 +3,13 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ref, set } from 'firebase/database';
+import { ref, set, update } from 'firebase/database';
 import { db, auth } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
@@ -23,6 +24,7 @@ const interestOptions = [
 ];
 
 export default function UserPreferencesPage() {
+  const [location, setLocation] = useState('Darjeeling, India');
   const [interests, setInterests] = useState<string[]>([]);
   const [allergies, setAllergies] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -39,6 +41,14 @@ export default function UserPreferencesPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!location) {
+      toast({
+        variant: 'destructive',
+        title: 'Destination is required',
+        description: 'Please enter your primary travel destination.',
+      });
+      return;
+    }
     setIsLoading(true);
 
     const user = auth.currentUser;
@@ -54,9 +64,11 @@ export default function UserPreferencesPage() {
 
     try {
       const userRef = ref(db, 'users/' + user.uid);
-      await set(userRef, {
+      // Use update to avoid overwriting the entire user object if it already exists
+      await update(userRef, {
         displayName: user.displayName,
         email: user.email,
+        location: location,
         preferences: {
           interests,
           allergies,
@@ -91,6 +103,17 @@ export default function UserPreferencesPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-8">
+             <div className="space-y-2">
+              <Label htmlFor="location">Where are you traveling to?</Label>
+              <Input
+                id="location"
+                placeholder="e.g., Darjeeling, India"
+                required
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+              />
+            </div>
+
             <div className="space-y-4">
               <h3 className="font-semibold">What are your main travel interests?</h3>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

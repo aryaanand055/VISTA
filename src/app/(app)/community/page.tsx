@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Flame, MessageSquare, Rss, Share2, ThumbsUp, Sparkles, Loader2 } from 'lucide-react';
 import { summarizeCommunityActivity, type SummarizeCommunityActivityInput } from '@/ai/flows/summarize-community-activity';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from '@/contexts/auth-context';
 
 const threads = {
   discussion: [
@@ -18,7 +19,7 @@ const threads = {
       avatar: 'https://picsum.photos/seed/person5/48/48',
       time: '3 hours ago',
       title: 'Best place for authentic momos?',
-      content: 'Hey everyone, just arrived in Darjeeling. My main mission is to find the absolute best, most authentic momos in town. Any recommendations? Not looking for fancy restaurants, more like hidden local spots. Thanks!',
+      content: 'Hey everyone, just arrived. My main mission is to find the absolute best, most authentic momos in town. Any recommendations? Not looking for fancy restaurants, more like hidden local spots. Thanks!',
       upvotes: 18,
       comments: 5,
     },
@@ -28,7 +29,7 @@ const threads = {
       avatar: 'https://picsum.photos/seed/person1/48/48',
       time: '1 day ago',
       title: 'Is the Toy Train worth it?',
-      content: 'I\'m considering taking the Darjeeling Himalayan Railway (Toy Train) ride tomorrow. Is the full loop worth the time, or is a shorter ride just as good for the experience? Also, how early should I book tickets?',
+      content: 'I\'m considering taking the Toy Train ride tomorrow. Is the full loop worth the time, or is a shorter ride just as good for the experience? Also, how early should I book tickets?',
       upvotes: 7,
       comments: 12,
     },
@@ -62,7 +63,7 @@ const threads = {
 const urgentAlerts = [
   {
     id: 99,
-    author: 'Darjeeling Police',
+    author: 'Local Police Dept.',
     avatar: 'https://picsum.photos/seed/police/48/48',
     time: '45 minutes ago',
     title: 'URGENT: Roadblock on Hill Cart Road due to landslide',
@@ -73,6 +74,7 @@ const urgentAlerts = [
 ];
 
 function CommunitySummary() {
+  const { location } = useAuth();
   const [summary, setSummary] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -102,7 +104,7 @@ function CommunitySummary() {
           </div>
           <div>
             <CardTitle>Community Daily Digest</CardTitle>
-            <CardDescription className="text-primary/80">An AI-powered summary of today's hot topics and alerts.</CardDescription>
+            <CardDescription className="text-primary/80">An AI-powered summary of today's hot topics and alerts for {location}.</CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -123,11 +125,12 @@ function CommunitySummary() {
 
 
 export default function CommunityPage() {
+    const { location } = useAuth();
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="font-headline text-3xl font-bold tracking-tight">Darjeeling Travellers Community</h1>
-        <p className="text-muted-foreground">Your local hub for discussions, Q&A, and alerts in Darjeeling.</p>
+        <h1 className="font-headline text-3xl font-bold tracking-tight">{location} Travellers Community</h1>
+        <p className="text-muted-foreground">Your local hub for discussions, Q&A, and alerts in {location}.</p>
       </header>
       
       {/* AI Summary */}

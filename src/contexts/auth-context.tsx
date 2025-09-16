@@ -1,9 +1,9 @@
 
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { ref, get, child } from 'firebase/database';
+import { ref, get, child, update } from 'firebase/database';
 import { auth, db } from '@/lib/firebase';
 import { Loader2 } from 'lucide-react';
 
@@ -11,6 +11,8 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   isNewUser: boolean | null;
+  location: string | null;
+  setLocation: (location: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -19,6 +21,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isNewUser, setIsNewUser] = useState<boolean | null>(null);
+  const [location, setLocationState] = useState<string | null>('Darjeeling');
+
+
+  const setLocation = useCallback((newLocation: string) => {
+    setLocationState(newLocation);
+    if (user) {
+      const userRef = ref(db, `users/${user.uid}`);
+      update(userRef, { location: newLocation });
+    }
+  }, [user]);
 
 
   useEffect(() => {
@@ -29,11 +41,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const dbRef = ref(db);
         const snapshot = await get(child(dbRef, `users/${user.uid}`));
         const userData = snapshot.val();
+
+        if (snapshot.exists() && userData.location) {
+          setLocationState(userData.location);
+        } else {
+            // Default location if not set
+            setLocationState('Darjeeling, India');
+        }
+
         // A user is "new" if they don't have a record or preferences in our `users` node.
         setIsNewUser(!snapshot.exists() || !userData.preferences);
       } else {
         setUser(null);
         setIsNewUser(null);
+        setLocationState('Darjeeling, India'); // Default for guests
       }
       setLoading(false);
     });
@@ -41,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  const value = { user, loading, isNewUser };
+  const value = { user, loading, isNewUser, location, setLocation };
 
   // Render a global loading state while we check for an active user session.
   if (loading) {

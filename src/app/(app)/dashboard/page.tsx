@@ -10,7 +10,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '@/contexts/auth-context';
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, location } = useAuth();
   const safetyScore = 92;
 
   const getSafetyClass = (score: number) => {
@@ -23,7 +23,7 @@ export default function DashboardPage() {
     {
       id: 1,
       category: 'Weather Alert',
-      title: 'Heavy Rainfall Expected in Darjeeling Hills This Weekend',
+      title: `Heavy Rainfall Expected in ${location} Hills This Weekend`,
       source: 'Local Weather Department',
       time: new Date(Date.now() - 3600 * 1000 * 2), // 2 hours ago
       isUrgent: true,
@@ -31,8 +31,8 @@ export default function DashboardPage() {
     {
       id: 2,
       category: 'Travel Update',
-      title: 'Toy Train Services Temporarily Halted for Maintenance',
-      source: 'Darjeeling Himalayan Railway',
+      title: 'Iconic Local Train Services Temporarily Halted for Maintenance',
+      source: 'Local Railway',
       time: new Date(Date.now() - 3600 * 1000 * 8), // 8 hours ago
       isUrgent: false,
     },
@@ -55,7 +55,7 @@ export default function DashboardPage() {
         <div className="absolute bottom-0 left-0 p-6">
           <div className="flex items-center gap-2 text-white">
             <MapPin className="h-5 w-5" />
-            <p className="font-semibold">Darjeeling, India</p>
+            <p className="font-semibold">{location}</p>
           </div>
           <h2 className="mt-2 font-headline text-4xl font-bold text-white">Your Himalayan Escape</h2>
         </div>
@@ -191,7 +191,7 @@ export default function DashboardPage() {
                   <Users />
                   <span>Community Forum</span>
                 </CardTitle>
-                <CardDescription>Connect with other travelers in Darjeeling.</CardDescription>
+                <CardDescription>Connect with other travelers in {location}.</CardDescription>
               </CardHeader>
             </Link>
           </Card>

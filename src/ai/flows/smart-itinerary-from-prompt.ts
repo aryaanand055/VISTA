@@ -2,6 +2,7 @@
 /**
  * @fileOverview An AI agent that generates a smart itinerary based on a prompt.
  *
+.
  * - generateSmartItinerary - A function that generates a smart itinerary.
  * - SmartItineraryInput - The input type for the generateSmartItinerary function.
  * - SmartItineraryOutput - The return type for the generateSmartItinerary function.
@@ -16,12 +17,14 @@ import { getWeather } from '../tools/weather';
 
 const SmartItineraryInputSchema = z.object({
   prompt: z.string().describe('A prompt describing the user\'s interests, desired activities, and travel dates.'),
+  location: z.string().optional().describe('The primary travel destination. If not provided, it should be inferred from the prompt.'),
 });
 export type SmartItineraryInput = z.infer<typeof SmartItineraryInputSchema>;
 
 const SmartItineraryOutputSchema = z.object({
   itinerary: z.array(ItineraryDaySchema).describe('A personalized itinerary including specific locations, estimated travel times, and safety scores for each location.'),
   title: z.string().describe('A creative title for the itinerary.'),
+  location: z.string().describe('The primary location of the itinerary (e.g., "Darjeeling, India").'),
   explanation: z.string().describe('A detailed explanation of why the itinerary was structured this way, referencing any tools used like weather or event lookups.'),
 });
 export type SmartItineraryOutput = z.infer<typeof SmartItineraryOutputSchema>;
@@ -35,9 +38,9 @@ const prompt = ai.definePrompt({
   input: {schema: SmartItineraryInputSchema},
   output: {schema: SmartItineraryOutputSchema},
   tools: [findLocalEvents, getWeather],
-  prompt: `You are an AI travel assistant. Your primary goal is to generate a personalized itinerary based on the user's prompt.
+  prompt: `You are an AI travel assistant. Your primary goal is to generate a personalized itinerary based on the user's prompt and location.
 
-  1.  **Identify the Location**: First, extract the primary travel destination from the user's prompt.
+  1.  **Identify the Location**: First, determine the primary travel destination. Use the provided location ("{{{location}}}") if available. If it's not provided or the user's prompt specifies a different one, extract the location from the prompt. The final determined location MUST be set in the 'location' output field.
   2.  **Gather Information**: Use the provided tools (\`getWeather\` and \`findLocalEvents\`) for that specific location to get real-time weather forecasts and information about local events.
   3.  **Create the Itinerary**: Generate a personalized itinerary structured as a list of days. Each day should have a theme and a list of events. Each event must have a time, an activity, and an optional safety score.
   4.  **Create a Title**: Generate a creative title for the entire trip.
