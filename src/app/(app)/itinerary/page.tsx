@@ -13,7 +13,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Loader2, Wand2, Sparkles, AlertTriangle, Clock, Shield, Upload } from 'lucide-react';
+import { Loader2, Wand2, Sparkles, AlertTriangle, Clock, Shield, Upload, MapPin } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -27,6 +27,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { sendSosAlert } from '@/ai/flows/sos-alert';
+import Link from 'next/link';
 
 export default function ItineraryPage() {
   const { user } = useAuth();
@@ -383,6 +384,11 @@ function ItineraryTimeline({ itinerary }: { itinerary: ItineraryDay[] }) {
                             <span>{event.safetyScore}</span>
                         </div>
                     )}
+                    <Link href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(event.activity + ', Darjeeling')}`} target="_blank" rel="noopener noreferrer">
+                      <Button variant="ghost" size="icon">
+                        <MapPin className="h-4 w-4" />
+                      </Button>
+                    </Link>
                 </div>
               </div>
             ))}

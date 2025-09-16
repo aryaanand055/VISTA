@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef } from 'react';
@@ -12,6 +13,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { findPlaces } from '@/ai/flows/find-places';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import Link from 'next/link';
 
 const initialPlacesData = [
   {
@@ -197,9 +199,16 @@ export default function PlacesPage() {
                             AI Rec: {selectedPlace.justification}
                           </CardDescription>
                         )}
-                        <CardDescription className="flex items-center gap-2 pt-2">
-                            <MapPin className="h-4 w-4" /> {selectedPlace.address}
-                        </CardDescription>
+                        <div className="flex items-center justify-between mt-2">
+                            <CardDescription className="flex items-center gap-2">
+                                <MapPin className="h-4 w-4" /> {selectedPlace.address}
+                            </CardDescription>
+                            <Link href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(selectedPlace.address)}`} target="_blank" rel="noopener noreferrer">
+                                <Button variant="outline">
+                                    <MapPin className="mr-2 h-4 w-4" /> Directions
+                                </Button>
+                            </Link>
+                        </div>
                          <div className="flex items-center gap-1 text-lg mt-2">
                             <Star className="w-5 h-5 text-accent fill-accent"/>
                             <span className="font-bold">{selectedPlace.rating}</span>
