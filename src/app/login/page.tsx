@@ -68,10 +68,15 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              Sign In
-            </Button>
+            <div className="flex flex-col space-y-2">
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Sign In
+              </Button>
+              <Link href="/dashboard" className="w-full">
+                <Button variant="outline" className="w-full">Continue as Guest</Button>
+              </Link>
+            </div>
           </form>
            <div className="mt-4 text-center text-sm">
             Don't have an account?{' '}
