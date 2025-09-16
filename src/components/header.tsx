@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, BotMessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { navItems } from './sidebar';
 
@@ -24,6 +24,10 @@ export function Header() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="p-4">
+            <SheetHeader>
+                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                <SheetDescription className="sr-only">Main navigation links for the Safe Passage application.</SheetDescription>
+            </SheetHeader>
             <div className="mb-8 flex items-center gap-2">
               <BotMessageSquare className="h-8 w-8 text-primary" />
               <h1 className="font-headline text-2xl font-semibold text-foreground">Safe Passage</h1>
