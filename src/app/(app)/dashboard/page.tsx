@@ -1,13 +1,146 @@
 
 'use client';
-
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Shield, MapPin, Users, FerrisWheel, Sun, Cloudy, Map as MapIcon, Newspaper, AlertTriangle, LogIn } from 'lucide-react';
+import { Shield, MapPin, Users, FerrisWheel, Sun, Cloudy, Map as MapIcon, Newspaper, AlertTriangle, LogIn, Clock, Wand2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { formatDistanceToNow } from 'date-fns';
+import { format, formatDistanceToNow, isToday, parseISO } from 'date-fns';
 import { useAuth } from '@/contexts/auth-context';
+import type { ItineraryDay, ItineraryEvent } from '@/ai/flows/schemas';
+import { ref, get, child } from 'firebase/database';
+import { db } from '@/lib/firebase';
+import { Skeleton } from '@/components/ui/skeleton';
+
+function TodaysPlan() {
+  const { user } = useAuth();
+  const [todaysEvents, setTodaysEvents] = useState<ItineraryEvent[] | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasItinerary, setHasItinerary] = useState(false);
+
+  useEffect(() => {
+    async function fetchTodaysPlan() {
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const userRef = ref(db, 'users/' + user.uid);
+        const snapshot = await get(child(userRef, 'itinerary'));
+        
+        if (snapshot.exists()) {
+          const itineraryOutput = snapshot.val();
+          setHasItinerary(true);
+          const allDays: ItineraryDay[] = itineraryOutput.itinerary || [];
+          
+          // This logic assumes "Day 1" is today. A real app would need a start date.
+          // For now, we will find a day with events to display. 
+          // A better approach would be to associate dates with days.
+          const today = new Date();
+          // We don't have real dates, so let's find the "first" day of the itinerary
+          // to represent "Today". This is a simplification.
+          const currentDayPlan = allDays.length > 0 ? allDays[0] : null;
+
+          if (currentDayPlan && currentDayPlan.events.length > 0) {
+            setTodaysEvents(currentDayPlan.events);
+          } else {
+            setTodaysEvents([]); // No events for today
+          }
+        } else {
+          setHasItinerary(false);
+          setTodaysEvents([]); // No itinerary exists
+        }
+      } catch (error) {
+        console.error("Failed to fetch today's plan:", error);
+        setTodaysEvents([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchTodaysPlan();
+  }, [user]);
+
+  if (isLoading) {
+    return (
+      <Card className="transition-all hover:shadow-lg hover:-translate-y-1">
+        <CardHeader>
+          <CardDescription>Today's Plan</CardDescription>
+          <CardTitle className="font-headline"><Skeleton className="h-8 w-48" /></CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-start gap-4">
+            <Skeleton className="h-10 w-10 rounded-full" />
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-40" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+          </div>
+           <div className="flex items-start gap-4">
+            <Skeleton className="h-10 w-10 rounded-full" />
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-4 w-20" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!user || !hasItinerary) {
+      return (
+        <Card className="transition-all hover:shadow-lg hover:-translate-y-1 flex flex-col items-center justify-center text-center">
+             <CardHeader>
+                <CardTitle className="font-headline">What's Your Plan?</CardTitle>
+                <CardDescription>
+                    {user ? "You haven't created an itinerary yet. Let's make one!" : "Log in to create a smart itinerary for your trip."}
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="flex-grow">
+                 <Link href="/itinerary" passHref>
+                    <Button>
+                        <Wand2 className="mr-2 h-4 w-4" />
+                        Create an Itinerary
+                    </Button>
+                </Link>
+            </CardContent>
+        </Card>
+      );
+  }
+
+  return (
+    <Card className="transition-all hover:shadow-lg hover:-translate-y-1">
+      <CardHeader>
+        <CardDescription>Today's Plan</CardDescription>
+        <CardTitle className="font-headline">
+          {todaysEvents && todaysEvents.length > 0 ? "Exploring the Area" : "A Day to Relax"}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {todaysEvents && todaysEvents.length > 0 ? (
+          todaysEvents.map((event, index) => (
+            <div key={index} className="flex items-start gap-4">
+              <div className="rounded-full bg-primary/10 p-2">
+                <Clock className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="font-semibold">{event.activity}</p>
+                <p className="text-sm text-muted-foreground">{event.time} {event.duration && `· ${event.duration}`}</p>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="text-sm text-muted-foreground">No events scheduled for today. Why not explore some local places or create a plan?</p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 
 export default function DashboardPage() {
   const { user, location } = useAuth();
@@ -92,32 +225,7 @@ export default function DashboardPage() {
         )}
 
 
-        <Card className="transition-all hover:shadow-lg hover:-translate-y-1">
-          <CardHeader>
-            <CardDescription>Today's Plan</CardDescription>
-            <CardTitle className="font-headline">Sunrise & Monasteries</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-start gap-4">
-              <div className="rounded-full bg-primary/10 p-2">
-                <Sun className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="font-semibold">Tiger Hill Sunrise</p>
-                <p className="text-sm text-muted-foreground">4:30 AM - 7:00 AM</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4">
-              <div className="rounded-full bg-primary/10 p-2">
-                <FerrisWheel className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="font-semibold">Ghoom Monastery</p>
-                <p className="text-sm text-muted-foreground">8:00 AM - 10:00 AM</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <TodaysPlan />
 
         <Card className="transition-all hover:shadow-lg hover:-translate-y-1">
           <CardHeader>

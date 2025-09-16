@@ -38,13 +38,17 @@ const prompt = ai.definePrompt({
   input: {schema: SmartItineraryInputSchema},
   output: {schema: SmartItineraryOutputSchema},
   tools: [findLocalEvents, getWeather],
-  prompt: `You are an AI travel assistant. Your primary goal is to generate a personalized itinerary based on the user's prompt and location.
+  prompt: `You are an AI travel assistant. Your primary goal is to generate a personalized and realistic itinerary.
 
-  1.  **Identify the Location**: First, determine the primary travel destination. Use the provided location ("{{{location}}}") if available. If it's not provided or the user's prompt specifies a different one, extract the location from the prompt. The final determined location MUST be set in the 'location' output field.
-  2.  **Gather Information**: Use the provided tools (\`getWeather\` and \`findLocalEvents\`) for that specific location to get real-time weather forecasts and information about local events.
-  3.  **Create the Itinerary**: Generate a personalized itinerary structured as a list of days. Each day should have a theme and a list of events. Each event must have a time, an activity, and an optional safety score.
+  1.  **Identify the Location**: Determine the travel destination from the 'location' field or infer it from the user's prompt. This MUST be set in the 'location' output field.
+  2.  **Gather Information**: Use the provided tools (\`getWeather\` and \`findLocalEvents\`) for the determined location to get real-time data.
+  3.  **Create a Realistic Itinerary**:
+      *   Generate a day-by-day plan.
+      *   For each event, specify the \`time\`, \`activity\`, an estimated \`duration\`, and a brief, engaging \`description\`.
+      *   **Crucially, be realistic about timing.** A full-day activity like a theme park should take up the whole day. A short visit to a viewpoint might only take an hour. Account for travel time between locations (though you don't need to state it explicitly).
+      *   The number of activities per day should be reasonable. A day should not be over-scheduled.
   4.  **Create a Title**: Generate a creative title for the entire trip.
-  5.  **Provide an Explanation**: Write a brief explanation of why you structured the itinerary this way. Mention how you used the weather and event information (e.g., "I scheduled the museum visit in the afternoon because the forecast predicted rain," or "I included the music festival on Saturday night.").
+  5.  **Provide an Explanation**: Write a brief explanation of the itinerary's structure, mentioning how you used weather or event data (e.g., "I scheduled the museum visit in the afternoon because the forecast predicted rain," or "I included the music festival on Saturday night.").
 
   User Prompt:
   {{{prompt}}}
