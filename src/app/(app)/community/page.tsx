@@ -1,11 +1,13 @@
 'use client';
-
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Flame, MessageSquare, Rss, Share2, ThumbsUp } from 'lucide-react';
+import { Flame, MessageSquare, Rss, Share2, ThumbsUp, Sparkles, Loader2 } from 'lucide-react';
+import { summarizeCommunityActivity, type SummarizeCommunityActivityInput } from '@/ai/flows/summarize-community-activity';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const threads = {
   discussion: [
@@ -69,14 +71,66 @@ const urgentAlerts = [
   }
 ];
 
+function CommunitySummary() {
+  const [summary, setSummary] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function getSummary() {
+      setLoading(true);
+      try {
+        const allPosts = [...urgentAlerts, ...threads.discussion, ...threads.qa, ...threads.recommendations];
+        const result = await summarizeCommunityActivity({ posts: allPosts });
+        setSummary(result.summary);
+      } catch (error) {
+        console.error("Error generating summary:", error);
+        setSummary('Could not load community summary at this time.');
+      } finally {
+        setLoading(false);
+      }
+    }
+    getSummary();
+  }, []);
+
+  return (
+    <Card className="bg-primary/10 border-primary">
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <div className="flex-shrink-0 rounded-full bg-primary/20 p-2">
+            <Sparkles className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <CardTitle>Community Daily Digest</CardTitle>
+            <CardDescription className="text-primary/80">An AI-powered summary of today's hot topics and alerts.</CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {loading ? (
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-5/6" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-4/6" />
+          </div>
+        ) : (
+          <div className="prose prose-sm text-primary-foreground max-w-none" dangerouslySetInnerHTML={{ __html: summary.replace(/\n/g, '<br />') }} />
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 
 export default function CommunityPage() {
   return (
     <div className="space-y-6">
       <header>
         <h1 className="font-headline text-3xl font-bold tracking-tight">Darjeeling Travellers Community</h1>
-        <p className="text-muted-foreground">Your local hub for discussions, Q&amp;A, and alerts in Darjeeling.</p>
+        <p className="text-muted-foreground">Your local hub for discussions, Q&A, and alerts in Darjeeling.</p>
       </header>
+      
+      {/* AI Summary */}
+      <CommunitySummary />
 
       {/* Pinned Urgent Alerts */}
       <Card className="border-destructive bg-destructive/10">
@@ -120,7 +174,7 @@ export default function CommunityPage() {
                 <MessageSquare className="mr-2 h-4 w-4" /> Discussion
               </TabsTrigger>
               <TabsTrigger value="qa">
-                <Rss className="mr-2 h-4 w-4" /> Q&amp;A
+                <Rss className="mr-2 h-4 w-4" /> Q&A
               </TabsTrigger>
                <TabsTrigger value="recommendations">
                 <ThumbsUp className="mr-2 h-4 w-4" /> Recommendations

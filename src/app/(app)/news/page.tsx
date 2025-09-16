@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -9,6 +8,8 @@ import { Loader2, Search, Rss } from 'lucide-react';
 import { format } from 'date-fns';
 import Image from 'next/image';
 import Link from 'next/link';
+import { getNews } from '@/ai/tools/news';
+import { useToast } from '@/hooks/use-toast';
 
 interface NewsArticle {
   title: string;
@@ -19,67 +20,40 @@ interface NewsArticle {
   imageUrl?: string;
 }
 
-// Mock news data
-const mockNews: NewsArticle[] = [
-    {
-      title: 'Heavy Rainfall Expected in Darjeeling Hills',
-      source: 'Local Weather Channel',
-      url: '#',
-      publishedAt: new Date(Date.now() - 3600 * 1000 * 2).toISOString(),
-      description: 'Tourists are advised to be cautious as the meteorological department has predicted heavy rainfall over the next 48 hours, which may lead to landslides in sensitive areas.',
-      imageUrl: 'https://picsum.photos/seed/news1/400/200',
-    },
-    {
-      title: 'Toy Train Services Temporarily Halted for Maintenance',
-      source: 'Darjeeling Himalayan Railway',
-      url: '#',
-      publishedAt: new Date(Date.now() - 3600 * 1000 * 24).toISOString(),
-      description: 'The iconic Darjeeling Toy Train will not be operational on the main route for the next two days due to urgent track maintenance. Shuttle services on shorter routes continue.',
-      imageUrl: 'https://picsum.photos/seed/news2/400/200',
-    },
-    {
-      title: 'Annual Tea and Tourism Festival Begins',
-      source: 'Darjeeling Times',
-      url: '#',
-      publishedAt: new Date(Date.now() - 3600 * 1000 * 48).toISOString(),
-      description: 'The much-awaited annual Darjeeling Tea and Tourism Festival began today at Chowrasta Mall, showcasing the best of local culture, music, and of course, tea.',
-      imageUrl: 'https://picsum.photos/seed/news3/400/200',
-    },
-    {
-        title: 'New Hiking Trail to Sandakphu Opens for Season',
-        source: 'Himalayan Mountaineering Institute',
-        url: '#',
-        publishedAt: new Date(Date.now() - 3600 * 1000 * 72).toISOString(),
-        description: 'The popular hiking route to Sandakphu is now officially open for the trekking season. Trekkers are advised to register before starting their journey.',
-        imageUrl: 'https://picsum.photos/seed/news4/400/200',
-    },
-];
-
 export default function NewsPage() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('Darjeeling travel');
   const [isLoading, setIsLoading] = useState(false);
   const [articles, setArticles] = useState<NewsArticle[]>([]);
+  const { toast } = useToast();
+
+  const handleSearch = async (query?: string) => {
+    const finalQuery = query || searchQuery;
+    if (!finalQuery) {
+      toast({ title: 'Search query is empty', variant: 'destructive' });
+      return;
+    }
+    setIsLoading(true);
+    setArticles([]);
+
+    try {
+      const result = await getNews({ query: finalQuery });
+      setArticles(result.articles);
+    } catch (error) {
+      console.error("Failed to fetch news:", error);
+      toast({
+        title: 'Error Fetching News',
+        description: 'Could not retrieve news at this time. Please try again later.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Load initial articles
-    setIsLoading(true);
-    // In a real app, you'd fetch this from your `getNews` tool
-    setTimeout(() => {
-      setArticles(mockNews);
-      setIsLoading(false);
-    }, 1000);
+    // Load initial articles on page load
+    handleSearch('Darjeeling travel safety');
   }, []);
-
-  const handleSearch = () => {
-    if (!searchQuery) return;
-    setIsLoading(true);
-    // Simulate fetching new articles based on search
-    setTimeout(() => {
-        const filtered = mockNews.filter(a => a.title.toLowerCase().includes(searchQuery.toLowerCase()));
-        setArticles(filtered);
-        setIsLoading(false);
-    }, 1000);
-  };
 
   return (
     <div className="space-y-6">
@@ -103,7 +77,7 @@ export default function NewsPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             />
-            <Button onClick={handleSearch} disabled={isLoading}>
+            <Button onClick={() => handleSearch()} disabled={isLoading}>
               {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
               <span className="sr-only sm:not-sr-only sm:ml-2">Search</span>
             </Button>
@@ -116,11 +90,15 @@ export default function NewsPage() {
             <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
             <p className="mt-4 text-muted-foreground">Fetching latest news...</p>
         </div>
-      ) : (
+      ) : articles.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {articles.map((article, index) => (
                 <ArticleCard key={index} article={article} />
             ))}
+        </div>
+      ) : (
+        <div className="text-center p-8">
+            <p className="text-muted-foreground">No articles found for your query. Try a different search term.</p>
         </div>
       )}
 
@@ -130,7 +108,7 @@ export default function NewsPage() {
 
 function ArticleCard({ article }: { article: NewsArticle }) {
   return (
-    <Card className="overflow-hidden transition-shadow hover:shadow-lg">
+    <Card className="overflow-hidden transition-shadow hover:shadow-lg flex flex-col">
       <Link href={article.url} target="_blank" rel="noopener noreferrer" className="block">
         <div className="relative h-40 w-full">
             <Image
@@ -141,18 +119,22 @@ function ArticleCard({ article }: { article: NewsArticle }) {
                 data-ai-hint="news article"
             />
         </div>
-        <CardHeader>
-          <CardTitle className="text-lg">{article.title}</CardTitle>
+      </Link>
+      <div className="flex flex-col flex-grow p-4">
+        <CardHeader className="p-0">
+          <CardTitle className="text-lg hover:text-primary">
+             <Link href={article.url} target="_blank" rel="noopener noreferrer">{article.title}</Link>
+          </CardTitle>
           <CardDescription>
             {article.source} · {format(new Date(article.publishedAt), 'PP')}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0 pt-2 flex-grow">
           <p className="text-sm text-muted-foreground line-clamp-3">
             {article.description}
           </p>
         </CardContent>
-      </Link>
+      </div>
     </Card>
   );
 }
