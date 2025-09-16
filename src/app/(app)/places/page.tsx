@@ -293,6 +293,7 @@ export default function PlacesPage() {
                                     <p className="mt-1 text-muted-foreground">{review.comment}</p>
                                     <div className="mt-2 flex items-center gap-4 text-sm text-muted-foreground">
                                         <button className="flex items-center gap-1.5 transition-colors hover:text-primary"><ThumbsUp size={14} /> Helpful</button>
+
                                         <button className="flex items-center gap-1.5 transition-colors hover:text-primary"><MessageSquare size={14} /> Comment</button>
                                     </div>
                                 </div>
@@ -321,3 +322,5 @@ export default function PlacesPage() {
     </div>
   );
 }
+
+    
