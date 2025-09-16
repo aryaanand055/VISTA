@@ -1,16 +1,11 @@
 
 'use client';
 import { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Globe, UserCheck, UserX } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
-
-const FamilyMap = dynamic(() => import('@/components/FamilyMap'), { 
-    ssr: false,
-    loading: () => <div className="h-full w-full bg-muted animate-pulse flex items-center justify-center"><p>Loading Map...</p></div>
-});
+import Image from 'next/image';
 
 const allFamilyMembers = [
   { name: 'Rohan Sharma', relation: 'Spouse', lat: 27.0238, lng: 88.2636, online: true, iconUrl: 'https://picsum.photos/seed/person2/48/48' },
@@ -103,11 +98,21 @@ export default function TrackingPage() {
         </div>
 
         {/* Right Column: Map */}
-        <div className="lg:col-span-2 h-[400px] lg:h-full w-full rounded-lg border shadow-lg overflow-hidden">
-            <FamilyMap yourPosition={yourPosition} familyMembers={familyMembers} user={user} />
+        <div className="relative lg:col-span-2 h-[400px] lg:h-full w-full rounded-lg border shadow-lg overflow-hidden">
+            <Image
+                src="https://picsum.photos/seed/map-jaipur/1200/900"
+                alt="Map of the area"
+                fill
+                style={{ objectFit: 'cover' }}
+                data-ai-hint="street map jaipur"
+            />
+             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-center justify-center">
+                <div className="rounded-lg bg-background/80 p-4 text-center backdrop-blur-sm">
+                    <h3 className="font-bold text-lg">Live Map Coming Soon</h3>
+                    <p className="text-sm text-muted-foreground">The interactive map feature is currently under development.</p>
+                </div>
+            </div>
         </div>
     </div>
   );
 }
-
-    
