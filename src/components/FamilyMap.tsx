@@ -1,10 +1,11 @@
 
 "use client";
 
-import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import type { User } from 'firebase/auth';
+import { useEffect } from "react";
 
 interface Member {
   name: string;
@@ -32,6 +33,13 @@ const defaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = defaultIcon;
 
+function MapUpdater({ center }: { center: { lat: number; lng: number; } }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center);
+  }, [center, map]);
+  return null;
+}
 
 export default function FamilyMap({ yourPosition, familyMembers, user }: Props) {
 
@@ -59,11 +67,12 @@ export default function FamilyMap({ yourPosition, familyMembers, user }: Props) 
   }
 
   return (
-    <MapContainer center={yourPosition} zoom={15} scrollWheelZoom={false} style={{ height: "100%", width: "100%" }} key={JSON.stringify(yourPosition)}>
+    <MapContainer center={yourPosition} zoom={15} scrollWheelZoom={false} style={{ height: "100%", width: "100%" }}>
         <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        <MapUpdater center={yourPosition} />
 
         {/* Your position */}
         <Marker position={[yourPosition.lat, yourPosition.lng]} icon={userIcon(user?.photoURL || 'https://picsum.photos/seed/person1/48/48')}>
