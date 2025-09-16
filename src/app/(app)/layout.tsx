@@ -13,7 +13,6 @@ const privateRoutes = [
   '/itinerary',
   '/digital-id',
   '/tracking',
-  '/community',
 ];
 
 export default function AppLayout({ children }: { children: ReactNode }) {
@@ -35,7 +34,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       <div className="flex flex-1 flex-col pl-0 md:pl-64">
         <Header />
         <main className="relative flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">
-          <div className="h-full w-full">
+          <div className="h-full w-full animate-fade-in-up">
             {children}
           </div>
           {showOverlay && <AuthOverlay />}

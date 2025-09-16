@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -53,6 +54,7 @@ export default function NewsPage() {
   useEffect(() => {
     // Load initial articles on page load
     handleSearch('Darjeeling travel safety');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -93,7 +95,7 @@ export default function NewsPage() {
       ) : articles.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {articles.map((article, index) => (
-                <ArticleCard key={index} article={article} />
+                <ArticleCard key={index} article={article} index={index}/>
             ))}
         </div>
       ) : (
@@ -106,9 +108,12 @@ export default function NewsPage() {
   );
 }
 
-function ArticleCard({ article }: { article: NewsArticle }) {
+function ArticleCard({ article, index }: { article: NewsArticle, index: number }) {
   return (
-    <Card className="overflow-hidden transition-shadow hover:shadow-lg flex flex-col">
+    <Card 
+      className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col animate-fade-in-up"
+      style={{ animationDelay: `${index * 100}ms`}}
+    >
       <Link href={article.url} target="_blank" rel="noopener noreferrer" className="block">
         <div className="relative h-40 w-full">
             <Image
@@ -122,7 +127,7 @@ function ArticleCard({ article }: { article: NewsArticle }) {
       </Link>
       <div className="flex flex-col flex-grow p-4">
         <CardHeader className="p-0">
-          <CardTitle className="text-lg hover:text-primary">
+          <CardTitle className="text-lg hover:text-primary transition-colors">
              <Link href={article.url} target="_blank" rel="noopener noreferrer">{article.title}</Link>
           </CardTitle>
           <CardDescription>

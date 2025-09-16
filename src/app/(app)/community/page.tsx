@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -181,13 +182,13 @@ export default function CommunityPage() {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="discussion" className="mt-6 space-y-4">
-              {threads.discussion.map(post => <PostCard key={post.id} post={post} />)}
+              {threads.discussion.map((post, i) => <PostCard key={post.id} post={post} index={i} />)}
             </TabsContent>
             <TabsContent value="qa" className="mt-6 space-y-4">
-              {threads.qa.map(post => <PostCard key={post.id} post={post} />)}
+              {threads.qa.map((post, i) => <PostCard key={post.id} post={post} index={i} />)}
             </TabsContent>
              <TabsContent value="recommendations" className="mt-6 space-y-4">
-              {threads.recommendations.map(post => <PostCard key={post.id} post={post} />)}
+              {threads.recommendations.map((post, i) => <PostCard key={post.id} post={post} index={i}/>)}
             </TabsContent>
           </Tabs>
         </CardContent>
@@ -196,9 +197,12 @@ export default function CommunityPage() {
   );
 }
 
-function PostCard({ post, isUrgent = false }: { post: any, isUrgent?: boolean }) {
+function PostCard({ post, isUrgent = false, index = 0 }: { post: any, isUrgent?: boolean, index?: number }) {
     return (
-        <div className={`flex gap-4 rounded-lg border p-4 ${isUrgent ? 'border-destructive/30' : ''}`}>
+        <div 
+            className={`flex gap-4 rounded-lg border p-4 animate-fade-in-up ${isUrgent ? 'border-destructive/30' : ''}`}
+            style={{ animationDelay: `${index * 100}ms`}}
+        >
             <Avatar className="hidden sm:block">
                 <AvatarImage src={post.avatar} alt={post.author} />
                 <AvatarFallback>{post.author.charAt(0)}</AvatarFallback>
@@ -212,13 +216,13 @@ function PostCard({ post, isUrgent = false }: { post: any, isUrgent?: boolean })
                 <h3 className="text-lg font-semibold mt-1">{post.title}</h3>
                 <p className="mt-2 text-muted-foreground">{post.content}</p>
                 <div className="mt-4 flex items-center gap-6 text-sm text-muted-foreground">
-                    <button className="flex items-center gap-1.5 hover:text-primary">
+                    <button className="flex items-center gap-1.5 transition-colors hover:text-primary">
                         <ThumbsUp size={16} /> {post.upvotes}
                     </button>
-                    <button className="flex items-center gap-1.5 hover:text-primary">
+                    <button className="flex items-center gap-1.5 transition-colors hover:text-primary">
                         <MessageSquare size={16} /> {post.comments}
                     </button>
-                     <button className="flex items-center gap-1.5 hover:text-primary">
+                     <button className="flex items-center gap-1.5 transition-colors hover:text-primary">
                         <Share2 size={16} /> Share
                     </button>
                 </div>

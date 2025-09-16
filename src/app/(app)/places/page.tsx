@@ -149,11 +149,12 @@ export default function PlacesPage() {
                     <Skeleton className="h-24 w-full" />
                 </>
             )}
-            {!isLoading && places.map(place => (
+            {!isLoading && places.map((place, i) => (
                  <Card 
                     key={place.id}
-                    className={`cursor-pointer transition-all hover:shadow-md ${selectedPlace?.id === place.id ? 'border-primary shadow-md' : ''}`}
+                    className={`cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 animate-fade-in-up ${selectedPlace?.id === place.id ? 'border-primary shadow-lg ring-2 ring-primary' : ''}`}
                     onClick={() => handleSelectPlace(place)}
+                    style={{ animationDelay: `${i * 100}ms`}}
                 >
                     <CardContent className="p-4 flex items-start gap-4">
                         <Image src={place.images[0]} alt={place.name} width={80} height={80} className="rounded-md aspect-square object-cover" />
@@ -175,7 +176,7 @@ export default function PlacesPage() {
       {/* Right Column: Place Details */}
       <div className="lg:col-span-2">
         {selectedPlace ? (
-            <Card className="h-full">
+            <Card className="h-full animate-fade-in">
                 <CardHeader>
                     <Carousel className="w-full">
                         <CarouselContent>
@@ -221,7 +222,7 @@ export default function PlacesPage() {
                         <h3 className="font-semibold">Leave your feedback</h3>
                         <div className="flex items-center gap-2">
                             {[...Array(5)].map((_, i) => (
-                                <Star key={i} className="h-6 w-6 text-gray-300 cursor-pointer hover:text-accent" />
+                                <Star key={i} className="h-6 w-6 text-gray-300 cursor-pointer transition-colors hover:text-accent" />
                             ))}
                         </div>
                         <Textarea placeholder={`What did you think of ${selectedPlace.name}?`} />
@@ -256,8 +257,8 @@ export default function PlacesPage() {
                                     </div>
                                     <p className="mt-1 text-muted-foreground">{review.comment}</p>
                                     <div className="mt-2 flex items-center gap-4 text-sm text-muted-foreground">
-                                        <button className="flex items-center gap-1.5 hover:text-primary"><ThumbsUp size={14} /> Helpful</button>
-                                        <button className="flex items-center gap-1.5 hover:text-primary"><MessageSquare size={14} /> Comment</button>
+                                        <button className="flex items-center gap-1.5 transition-colors hover:text-primary"><ThumbsUp size={14} /> Helpful</button>
+                                        <button className="flex items-center gap-1.5 transition-colors hover:text-primary"><MessageSquare size={14} /> Comment</button>
                                     </div>
                                 </div>
                             </div>

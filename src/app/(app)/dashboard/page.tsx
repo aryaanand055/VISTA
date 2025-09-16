@@ -63,7 +63,7 @@ export default function DashboardPage() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {user ? (
-          <Card className="flex flex-col">
+          <Card className="flex flex-col transition-all hover:shadow-lg hover:-translate-y-1">
             <CardHeader>
               <CardDescription className="flex items-center justify-between">
                 <span>Overall Safety Score</span>
@@ -78,7 +78,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         ) : (
-          <Card className="flex flex-col items-center justify-center text-center">
+          <Card className="flex flex-col items-center justify-center text-center transition-all hover:shadow-lg hover:-translate-y-1">
             <CardHeader>
               <CardTitle className="font-headline flex items-center gap-2"><Shield /> Safety Score</CardTitle>
             </CardHeader>
@@ -92,7 +92,7 @@ export default function DashboardPage() {
         )}
 
 
-        <Card>
+        <Card className="transition-all hover:shadow-lg hover:-translate-y-1">
           <CardHeader>
             <CardDescription>Today's Plan</CardDescription>
             <CardTitle className="font-headline">Sunrise & Monasteries</CardTitle>
@@ -119,7 +119,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="transition-all hover:shadow-lg hover:-translate-y-1">
           <CardHeader>
             <CardDescription>Weather Forecast</CardDescription>
             <CardTitle className="font-headline">Partly Cloudy</CardTitle>
@@ -136,7 +136,7 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Latest News Section */}
-        <Card>
+        <Card className="transition-all hover:shadow-lg hover:-translate-y-1">
           <CardHeader>
             <CardTitle className="font-headline flex items-center gap-2">
               <Newspaper />
@@ -170,7 +170,7 @@ export default function DashboardPage() {
         
         {/* Itinerary & Community Cards */}
         <div className="space-y-6">
-          <Card className="transition-shadow hover:shadow-md">
+          <Card className="transition-all hover:shadow-lg hover:-translate-y-1">
             <Link href="/itinerary" className="block h-full">
               <CardHeader>
                 <CardTitle className="font-headline flex items-center gap-2">
@@ -184,7 +184,7 @@ export default function DashboardPage() {
             </Link>
           </Card>
 
-          <Card className="transition-shadow hover:shadow-md">
+          <Card className="transition-all hover:shadow-lg hover:-translate-y-1">
             <Link href="/community" className="block h-full">
               <CardHeader>
                 <CardTitle className="font-headline flex items-center gap-2">
