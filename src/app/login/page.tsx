@@ -14,8 +14,8 @@ import { Loader2, BotMessageSquare } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('test@example.com');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -43,7 +43,7 @@ export default function LoginPage() {
         <CardHeader className="text-center">
             <BotMessageSquare className="mx-auto h-12 w-12 text-primary" />
             <CardTitle className="mt-4 text-2xl font-bold">Welcome Back</CardTitle>
-            <CardDescription>Sign in to your Safe Passage account. You can use test@example.com and password123 to start.</CardDescription>
+            <CardDescription>Sign in to your Safe Passage account.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
