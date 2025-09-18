@@ -80,9 +80,9 @@ export default function GeofencingPage() {
                 <div key={index} className="flex items-start gap-4 rounded-lg border border-destructive/50 bg-destructive/10 p-4">
                     <AlertTriangle className="h-6 w-6 text-destructive mt-1 flex-shrink-0"/>
                     <div>
-                        <h3 className="font-semibold text-destructive-foreground">{zone.name}</h3>
+                        <h3 className="font-semibold text-foreground">{zone.name}</h3>
                         <p className="text-sm font-bold text-destructive">{zone.type}</p>
-                        <p className="text-sm text-destructive-foreground/90 mt-1">{zone.reason}</p>
+                        <p className="text-sm text-foreground/90 mt-1">{zone.reason}</p>
                     </div>
                 </div>
             ))}
@@ -92,4 +92,3 @@ export default function GeofencingPage() {
     </div>
   );
 }
-
