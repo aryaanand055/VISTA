@@ -1,13 +1,32 @@
 
+'use client';
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/contexts/auth-context';
+import { useEffect, useState } from 'react';
 
-export const metadata: Metadata = {
-  title: 'Safe Passage',
-  description: 'Smart Tourist Safety Monitoring & Incident Response System',
-};
+
+// export const metadata: Metadata = {
+//   title: 'Safe Passage',
+//   description: 'Smart Tourist Safety Monitoring & Incident Response System',
+// };
+
+function ClientOnly({ children }: { children: React.ReactNode }) {
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  if (!hasMounted) {
+    return null;
+  }
+
+  return <>{children}</>;
+}
+
 
 export default function RootLayout({
   children,
@@ -17,6 +36,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <title>Safe Passage</title>
+        <meta name="description" content="Smart Tourist Safety Monitoring & Incident Response System" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
@@ -28,7 +49,9 @@ export default function RootLayout({
         <AuthProvider>
           {children}
         </AuthProvider>
-        <Toaster />
+        <ClientOnly>
+          <Toaster />
+        </ClientOnly>
       </body>
     </html>
   );
