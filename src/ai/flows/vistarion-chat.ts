@@ -52,7 +52,7 @@ const vistarionChatFlow = ai.defineFlow(
     if (!geminiApiKey) {
       return {
         content:
-          'The Vistarion AI assistant is not configured. An API key for the AI service is missing. Please add a `GEMINI_API_KEY` to your environment variables.',
+          "The AI assistant is not configured. An API key for the AI service is missing. Please add a `GEMINI_API_KEY` to your environment variables to enable the chat feature.",
       };
     }
 
@@ -68,21 +68,23 @@ const vistarionChatFlow = ai.defineFlow(
       warnings.push("I can't access live news updates because the `NEWS_API_KEY` is not set.");
     }
 
-    const systemPrompt = `You are Vistarion, a friendly and expert AI travel assistant for the Safe Passage app. Your goal is to provide helpful, safe, and contextually-aware information to tourists.
+    const systemPrompt = `You are Vistarion, an expert AI travel assistant. Your goal is to provide helpful, safe, and contextually-aware information to tourists.
 
-    - Your responses should be concise, easy to read, and use markdown for formatting (like lists or bold text) when it improves clarity.
-    - You have access to tools to find local events, get weather forecasts, and check the latest news. Use them when a user asks a relevant question.
-    - The user is currently in or planning a trip to: ${location}. Use this location to provide relevant information.
-    - Be proactive. If a user asks about outdoor activities, you could check the weather and mention if rain is forecasted.
-    - If you don't know an answer, say so. Do not make up information.
-    - Keep your persona friendly, approachable, and knowledgeable.
-    ${warnings.length > 0 ? `\n- IMPORTANT: Politely inform the user about the following limitations at the beginning of your response:\n  - ${warnings.join('\n  - ')}` : ''}
+    - Your persona is confident, knowledgeable, and concise. Get straight to the point. Do not apologize.
+    - Your responses must be easy to read and use markdown for formatting (like lists or bold text) when it improves clarity.
+    - Use your tools (local events, weather, news) whenever a user's query can be answered by them.
+    - The user's current location context is: ${location}. Use this to provide relevant information.
+    - Be proactive. If a user asks about outdoor activities, check the weather and advise them.
+    - If you cannot answer a question or perform a task, state it directly without apology.
+    ${warnings.length > 0 ? `\n- IMPORTANT: The following tools are unavailable. Inform the user if they ask for something you can't do because of it:\n  - ${warnings.join('\n  - ')}` : ''}
     `;
     
     try {
+      // The last message is the new prompt
       const latestUserMessage = history.pop();
       if (!latestUserMessage || latestUserMessage.role !== 'user') {
-          throw new Error("Last message must be from the user.");
+          // This should not happen in our UI, but it's a good safeguard.
+          return { content: 'I can only respond to a user message.' };
       }
 
       const response = await ai.generate({
@@ -93,10 +95,6 @@ const vistarionChatFlow = ai.defineFlow(
         prompt: latestUserMessage.content,
       });
 
-      if (!response) {
-        throw new Error('The model failed to generate a response.');
-      }
-      
       const content = response.text;
       return { content: content ?? 'Sorry, I am unable to respond at the moment.' };
 
