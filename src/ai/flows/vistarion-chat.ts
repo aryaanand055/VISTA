@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A flow for handling chat conversations with the Vistarion AI travel assistant.
@@ -41,6 +42,13 @@ const vistarionChatFlow = ai.defineFlow(
     outputSchema: VistarionChatOutputSchema,
   },
   async ({ history, location }) => {
+    if (!process.env.GEMINI_API_KEY) {
+      return {
+        content:
+          'The Vistarion AI assistant is not configured. An API key for the AI service is missing. Please add a `GEMINI_API_KEY` to your environment variables.',
+      };
+    }
+
     const systemPrompt = `You are Vistarion, a friendly and expert AI travel assistant for the Safe Passage app. Your goal is to provide helpful, safe, and contextually-aware information to tourists.
 
     - Your responses should be concise, easy to read, and use markdown for formatting (like lists or bold text) when it improves clarity.
