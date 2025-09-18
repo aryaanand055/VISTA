@@ -23,6 +23,7 @@ export const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/itinerary', icon: Map, label: 'Itinerary' },
   { href: '/digital-id', icon: User, label: 'Digital ID' },
+  { href: '/chatbot', icon: BotMessageSquare, label: 'Vistarion AI' },
   { href: '/community', icon: Mountain, label: 'Community' },
   { href: '/places', icon: ShoppingBag, label: 'Places' },
   { href: '/news', icon: Newspaper, label: 'News & Alerts' },
