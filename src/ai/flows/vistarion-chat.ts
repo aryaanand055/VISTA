@@ -42,11 +42,30 @@ const vistarionChatFlow = ai.defineFlow(
     outputSchema: VistarionChatOutputSchema,
   },
   async ({ history, location }) => {
-    if (!process.env.GEMINI_API_KEY) {
+    const geminiApiKey = process.env.GEMINI_API_KEY;
+    const weatherApiKey = process.env.OPENWEATHERMAP_API_KEY;
+    const newsApiKey = process.env.NEWS_API_KEY;
+
+    let availableTools = [findLocalEvents];
+    let warnings = [];
+
+    if (!geminiApiKey) {
       return {
         content:
           'The Vistarion AI assistant is not configured. An API key for the AI service is missing. Please add a `GEMINI_API_KEY` to your environment variables.',
       };
+    }
+
+    if (weatherApiKey) {
+      availableTools.push(getWeather);
+    } else {
+      warnings.push("I can't access live weather forecasts because the `OPENWEATHERMAP_API_KEY` is not set.");
+    }
+
+    if (newsApiKey) {
+      availableTools.push(getNews);
+    } else {
+      warnings.push("I can't access live news updates because the `NEWS_API_KEY` is not set.");
     }
 
     const systemPrompt = `You are Vistarion, a friendly and expert AI travel assistant for the Safe Passage app. Your goal is to provide helpful, safe, and contextually-aware information to tourists.
@@ -57,11 +76,12 @@ const vistarionChatFlow = ai.defineFlow(
     - Be proactive. If a user asks about outdoor activities, you could check the weather and mention if rain is forecasted.
     - If you don't know an answer, say so. Do not make up information.
     - Keep your persona friendly, approachable, and knowledgeable.
+    ${warnings.length > 0 ? `\n- IMPORTANT: Politely inform the user about the following limitations at the beginning of your response:\n  - ${warnings.join('\n  - ')}` : ''}
     `;
     
     const { output } = await ai.generate({
       model: 'googleai/gemini-1.5-flash-latest',
-      tools: [findLocalEvents, getWeather, getNews],
+      tools: availableTools,
       system: systemPrompt,
       history: history.map(h => ({
         role: h.role,
