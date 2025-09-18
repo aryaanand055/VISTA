@@ -44,7 +44,7 @@ export default function ChatbotPage() {
     try {
       const chatInput: VistarionChatInput = {
         history: [...messages, userMessage],
-        location: location || 'an unknown location'
+        location: location || 'India'
       };
       
       const result = await vistarionChat(chatInput);
@@ -73,7 +73,7 @@ export default function ChatbotPage() {
         <h1 className="font-headline text-3xl font-bold tracking-tight flex items-center gap-3">
             <BotMessageSquare className="h-8 w-8"/> Vistarion AI Chat
         </h1>
-        <p className="text-muted-foreground">Your personal AI travel assistant for {location}. Ask me anything!</p>
+        <p className="text-muted-foreground">Your personal AI travel assistant for India. Ask me anything!</p>
       </header>
 
       <Card className="flex flex-1 flex-col">
