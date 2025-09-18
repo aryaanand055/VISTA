@@ -79,7 +79,7 @@ const vistarionChatFlow = ai.defineFlow(
     ${warnings.length > 0 ? `\n- IMPORTANT: Politely inform the user about the following limitations at the beginning of your response:\n  - ${warnings.join('\n  - ')}` : ''}
     `;
     
-    const { output } = await ai.generate({
+    const response = await ai.generate({
       model: 'googleai/gemini-1.5-flash-latest',
       tools: availableTools,
       system: systemPrompt,
@@ -89,10 +89,10 @@ const vistarionChatFlow = ai.defineFlow(
       })),
     });
 
-    if (!output) {
+    if (!response) {
       throw new Error('The model failed to generate a response.');
     }
 
-    return { content: output.text ?? 'Sorry, I am unable to respond at the moment.' };
+    return { content: response.text ?? 'Sorry, I am unable to respond at the moment.' };
   }
 );
