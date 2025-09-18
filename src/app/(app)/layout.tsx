@@ -20,10 +20,11 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!loading && user && isNewUser) {
+    // Only redirect to user-preferences if the user is new AND not already on that page.
+    if (!loading && user && isNewUser && pathname !== '/user-preferences') {
       redirect('/user-preferences');
     }
-  }, [user, loading, isNewUser]);
+  }, [user, loading, isNewUser, pathname]);
 
   const isPrivateRoute = privateRoutes.some(route => pathname.startsWith(route));
   const showOverlay = !loading && !user && isPrivateRoute;
