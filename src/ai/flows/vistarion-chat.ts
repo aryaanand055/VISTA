@@ -84,18 +84,24 @@ ${warnings.length > 0 ? `\n- IMPORTANT: The following tools are unavailable, whi
     `;
     
     try {
-      // The last message is the new prompt
-      const latestUserMessage = history.pop();
+      if (history.length === 0) {
+        return { content: "Hello! How can I help you plan your trip?" };
+      }
+
+      // The last message is the new prompt. Get it without modifying the original array.
+      const latestUserMessage = history[history.length - 1];
       if (!latestUserMessage || latestUserMessage.role !== 'user') {
-          // This should not happen in our UI, but it's a good safeguard.
           return { content: 'I can only respond to a user message.' };
       }
+
+      // The rest of the history is passed for context.
+      const conversationHistory = history.slice(0, -1);
 
       const response = await ai.generate({
         model: 'googleai/gemini-1.5-flash-latest',
         tools: availableTools,
         system: systemPrompt,
-        history: history.map(h => ({ role: h.role, content: [{ text: h.content }] })),
+        history: conversationHistory.map(h => ({ role: h.role, content: [{ text: h.content }] })),
         prompt: latestUserMessage.content,
       });
 
