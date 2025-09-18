@@ -80,14 +80,17 @@ const vistarionChatFlow = ai.defineFlow(
     `;
     
     try {
+      const latestUserMessage = history.pop();
+      if (!latestUserMessage || latestUserMessage.role !== 'user') {
+          throw new Error("Last message must be from the user.");
+      }
+
       const response = await ai.generate({
         model: 'googleai/gemini-1.5-flash-latest',
         tools: availableTools,
         system: systemPrompt,
-        prompt: history.map(h => ({
-            role: h.role,
-            content: [{ text: h.content }],
-        })),
+        history: history.map(h => ({ role: h.role, content: [{ text: h.content }] })),
+        prompt: latestUserMessage.content,
       });
 
       if (!response) {
