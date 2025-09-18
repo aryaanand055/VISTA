@@ -9,9 +9,10 @@ import fetch from 'node-fetch';
 export const getWeather = ai.defineTool(
   {
     name: 'getWeather',
-    description: 'Gets the current weather and a 5-day forecast for a specific location.',
+    description: 'Gets the current weather and a 5-day forecast for a specific location. Can be used for a specific date within the next 5 days.',
     inputSchema: z.object({
       location: z.string().describe('The city and state, or city and country, for which to get the weather.'),
+      date: z.string().optional().describe('A specific date to get the weather for, e.g., "tomorrow", "today", or a date string.'),
     }),
     outputSchema: z.object({
       forecast: z.array(
