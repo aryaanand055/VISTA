@@ -13,7 +13,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Loader2, Wand2, Sparkles, AlertTriangle, Clock, Shield, Upload, MapPin } from 'lucide-react';
+import { Loader2, Wand2, Sparkles, AlertTriangle, Clock, Shield, Upload, MapPin, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -180,6 +180,24 @@ export default function ItineraryPage() {
     }
     toast({ title: 'Itinerary Loaded', description: 'Your custom itinerary has been loaded and saved. You can now optimize it.' });
   };
+  
+  const handleDownload = () => {
+    if (!itineraryOutput) {
+      toast({ title: 'No itinerary to download', variant: 'destructive' });
+      return;
+    }
+    const jsonString = JSON.stringify(itineraryOutput, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'itinerary.json';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast({ title: 'Itinerary downloaded!' });
+  };
 
 
   return (
@@ -287,6 +305,10 @@ export default function ItineraryPage() {
                   <CardTitle>{itineraryOutput.title || 'Your Itinerary'}</CardTitle>
                   <CardDescription>Here is your current travel plan for {itineraryOutput.location}. You can optimize it for safety and efficiency.</CardDescription>
                 </div>
+                <Button variant="outline" onClick={handleDownload}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Download
+                </Button>
               </div>
             </CardHeader>
             <CardContent>

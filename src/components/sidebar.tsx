@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Map, User, Users, BotMessageSquare, Newspaper, Home, ShoppingBag, Mountain, Bell, LifeBuoy, Settings, LogOut, ChevronUp } from 'lucide-react';
+import { LayoutDashboard, Map, User, Users, BotMessageSquare, Newspaper, Home, ShoppingBag, Mountain, Bell, LifeBuoy, Settings, LogOut, ChevronUp, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
@@ -27,6 +27,7 @@ export const navItems = [
   { href: '/places', icon: ShoppingBag, label: 'Places' },
   { href: '/news', icon: Newspaper, label: 'News & Alerts' },
   { href: '/tracking', icon: Users, label: 'Family Tracking' },
+  { href: '/geofencing', icon: MapPin, label: 'Geo-fencing' },
 ];
 
 export function Sidebar() {

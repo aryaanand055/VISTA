@@ -13,6 +13,7 @@ const privateRoutes = [
   '/itinerary',
   '/digital-id',
   '/tracking',
+  '/geofencing',
 ];
 
 export default function AppLayout({ children }: { children: ReactNode }) {
