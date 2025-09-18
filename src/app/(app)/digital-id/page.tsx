@@ -1,9 +1,15 @@
+
+'use client';
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Image from 'next/image';
 import { ShieldCheck, Calendar, Plane, Fingerprint } from 'lucide-react';
+import { useAuth } from '@/contexts/auth-context';
 
 export default function DigitalIdPage() {
+  const { user } = useAuth();
+
   return (
     <div className="space-y-6">
       <header>
@@ -37,11 +43,11 @@ export default function DigitalIdPage() {
         <CardContent className="space-y-4 p-6">
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16">
-              <AvatarImage src="https://picsum.photos/seed/person1/100/100" alt="Priya Sharma" data-ai-hint="woman portrait" />
-              <AvatarFallback>PS</AvatarFallback>
+              <AvatarImage src={user?.photoURL || "https://picsum.photos/seed/person1/100/100"} alt={user?.displayName || 'User'} data-ai-hint="woman portrait" />
+              <AvatarFallback>{user?.displayName?.charAt(0) || 'U'}</AvatarFallback>
             </Avatar>
             <div>
-              <h2 className="font-headline text-2xl font-bold">Priya Sharma</h2>
+              <h2 className="font-headline text-2xl font-bold">{user?.displayName || 'Tourist'}</h2>
               <p className="text-muted-foreground">Nationality: Indian</p>
             </div>
           </div>
