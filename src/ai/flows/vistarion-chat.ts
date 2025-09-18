@@ -52,12 +52,19 @@ const vistarionChatFlow = ai.defineFlow(
     `;
     
     const { output } = await ai.generate({
-      model: 'gemini-2.5-flash',
+      model: 'googleai/gemini-1.5-flash-latest',
       tools: [findLocalEvents, getWeather, getNews],
       system: systemPrompt,
-      history: history,
+      history: history.map(h => ({
+        role: h.role,
+        content: [{ text: h.content }],
+      })),
     });
 
-    return { content: output.text! };
+    if (!output) {
+      throw new Error('The model failed to generate a response.');
+    }
+
+    return { content: output.text ?? 'Sorry, I am unable to respond at the moment.' };
   }
 );
