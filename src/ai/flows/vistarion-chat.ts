@@ -83,11 +83,13 @@ const vistarionChatFlow = ai.defineFlow(
       const response = await ai.generate({
         model: 'googleai/gemini-1.5-flash-latest',
         tools: availableTools,
-        system: systemPrompt,
-        history: history.map(h => ({
-          role: h.role,
-          content: [{ text: h.content }],
-        })),
+        prompt: [
+            { role: 'system', content: [{ text: systemPrompt }] },
+            ...history.map(h => ({
+                role: h.role as 'user' | 'model', // Cast to the specific subtype
+                content: [{ text: h.content }],
+            })),
+        ],
       });
 
       if (!response) {
@@ -100,7 +102,8 @@ const vistarionChatFlow = ai.defineFlow(
     } catch (e: any) {
       console.error(`[vistarionChatFlow] Error generating response: ${e.message}`, {
         history,
-        location
+        location,
+        stack: e.stack,
       });
       // Re-throw a more user-friendly error to be caught by the UI
       throw new Error(`The AI model failed to generate a response. Please check the server logs for details. Original error: ${e.message}`);
