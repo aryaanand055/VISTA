@@ -25,13 +25,13 @@ const interestOptions = [
 ];
 
 export default function UserPreferencesPage() {
-  const [location, setLocation] = useState('');
+  const [location, setLocationState] = useState('');
   const [interests, setInterests] = useState<string[]>([]);
   const [allergies, setAllergies] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
-  const { refreshUserStatus } = useAuth();
+  const { refreshUserStatus, setLocation } = useAuth();
 
   const handleInterestChange = (interestId: string) => {
     setInterests((prev) =>
@@ -76,6 +76,9 @@ export default function UserPreferencesPage() {
           allergies,
         },
       });
+      
+      // Update location in context
+      setLocation(location);
 
       // Force a re-check of the user's status before navigating
       await refreshUserStatus();
@@ -115,7 +118,7 @@ export default function UserPreferencesPage() {
                 placeholder="e.g., Darjeeling, India"
                 required
                 value={location}
-                onChange={(e) => setLocation(e.target.value)}
+                onChange={(e) => setLocationState(e.target.value)}
               />
             </div>
 

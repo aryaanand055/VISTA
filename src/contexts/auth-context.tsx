@@ -37,35 +37,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const currentUser = auth.currentUser;
     if (currentUser) {
         const dbRef = ref(db);
-        const snapshot = await get(child(dbRef, `users/${currentUser.uid}`));
-        const userData = snapshot.val();
-        setIsNewUser(!snapshot.exists() || !userData.preferences);
+        try {
+          const snapshot = await get(child(dbRef, `users/${currentUser.uid}`));
+          const userData = snapshot.val();
+          setIsNewUser(!snapshot.exists() || !userData.preferences);
+        } catch (e) {
+            console.error("Failed to refresh user status", e);
+            // Don't change isNewUser status on error
+        }
+    } else {
+        setIsNewUser(null);
     }
   }, []);
 
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setLoading(true);
       if (user) {
         setUser(user);
         // Check if user has preferences set in Realtime Database
         const dbRef = ref(db);
-        const snapshot = await get(child(dbRef, `users/${user.uid}`));
-        const userData = snapshot.val();
+        try {
+            const snapshot = await get(child(dbRef, `users/${user.uid}`));
+            const userData = snapshot.val();
 
-        if (snapshot.exists() && userData.location) {
-          setLocationState(userData.location);
-        } else {
-            // Default location if not set
+            if (snapshot.exists() && userData.location) {
+              setLocationState(userData.location);
+            } else {
+                setLocationState(null);
+            }
+             // A user is "new" if they don't have a record or preferences in our `users` node.
+            setIsNewUser(!snapshot.exists() || !userData.preferences);
+        } catch (e) {
+            console.error("Error fetching user data from DB", e);
             setLocationState(null);
+            setIsNewUser(true); // Default to new user if DB fails
         }
-
-        // A user is "new" if they don't have a record or preferences in our `users` node.
-        setIsNewUser(!snapshot.exists() || !userData.preferences);
       } else {
         setUser(null);
         setIsNewUser(null);
-        setLocationState(null); // Default for guests
+        setLocationState(null); // No location for guests
       }
       setLoading(false);
     });
@@ -76,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = { user, loading, isNewUser, location, setLocation, refreshUserStatus };
 
   // Render a global loading state while we check for an active user session.
-  if (loading && !user) {
+  if (loading) {
     return (
         <div className="flex h-screen items-center justify-center">
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
