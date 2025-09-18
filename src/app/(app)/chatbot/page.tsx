@@ -18,11 +18,12 @@ interface Message {
 }
 
 export default function ChatbotPage() {
-  const { user, location } = useAuth();
+  const { user, location, setLocation } = useAuth();
   const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isSettingLocation, setIsSettingLocation] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -36,15 +37,33 @@ export default function ChatbotPage() {
   const handleSendMessage = async () => {
     if (!input.trim()) return;
 
+    if (!location) {
+        setIsSettingLocation(true);
+        setLocation(input);
+        setInput('');
+        toast({
+            title: "Location Set!",
+            description: `I'm now configured for ${input}. Ask me anything!`
+        })
+        setIsSettingLocation(false);
+        return;
+    }
+
     const userMessage: Message = { role: 'user', content: input };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
 
     try {
+      // The last message is the new prompt. Get it without modifying the original array.
+      const latestUserMessage = userMessage;
+
+      // The rest of the history is passed for context.
+      const conversationHistory = [...messages];
+      
       const chatInput: VistarionChatInput = {
-        history: [...messages, userMessage],
-        location: location || 'India'
+        history: conversationHistory,
+        location: location,
       };
       
       const result = await vistarionChat(chatInput);
@@ -52,19 +71,24 @@ export default function ChatbotPage() {
       const modelMessage: Message = { role: 'model', content: result.content };
       setMessages(prev => [...prev, modelMessage]);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Chatbot error:', error);
       toast({
         title: 'Error Communicating with Vistarion',
-        description: 'Could not get a response. Please try again.',
+        description: error.message || 'Could not get a response. Please try again.',
         variant: 'destructive',
       });
       // Remove the user's message if the API call fails to allow them to retry.
-      setMessages(prev => prev.slice(0, -1));
+      setMessages(prev => prev.filter(msg => msg.content !== userMessage.content));
     } finally {
       setIsLoading(false);
     }
   };
+
+  const getPlaceholder = () => {
+      if (!location) return "First, where are you traveling to?";
+      return `Ask about places, food, or safety in ${location}...`;
+  }
 
 
   return (
@@ -73,7 +97,7 @@ export default function ChatbotPage() {
         <h1 className="font-headline text-3xl font-bold tracking-tight flex items-center gap-3">
             <BotMessageSquare className="h-8 w-8"/> Vistarion AI Chat
         </h1>
-        <p className="text-muted-foreground">Your personal AI travel assistant for India. Ask me anything!</p>
+        <p className="text-muted-foreground">Your personal AI travel assistant for India.</p>
       </header>
 
       <Card className="flex flex-1 flex-col">
@@ -102,7 +126,7 @@ export default function ChatbotPage() {
                 >
                   <div
                     className="prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: marked(message.content) as string }}
+                    dangerouslySetInnerHTML={{ __html: marked.parse(message.content) as string }}
                   />
                 </div>
                  {message.role === 'user' && (
@@ -113,7 +137,7 @@ export default function ChatbotPage() {
                 )}
               </div>
             ))}
-             {isLoading && (
+             {(isLoading || isSettingLocation) && (
                 <div className="flex items-start gap-3 justify-start">
                      <Avatar className="h-9 w-9 border-2 border-primary/50">
                         <AvatarFallback>
@@ -135,16 +159,16 @@ export default function ChatbotPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !isLoading && handleSendMessage()}
-              placeholder="Ask about places, food, or safety tips..."
+              placeholder={getPlaceholder()}
               className="pr-12"
-              disabled={isLoading}
+              disabled={isLoading || isSettingLocation}
             />
             <Button
               type="submit"
               size="icon"
               className="absolute right-2 top-1/2 -translate-y-1/2"
               onClick={handleSendMessage}
-              disabled={isLoading}
+              disabled={isLoading || isSettingLocation}
             >
               <Send className="h-4 w-4" />
               <span className="sr-only">Send</span>

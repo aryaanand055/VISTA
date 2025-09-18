@@ -13,6 +13,7 @@ interface AuthContextType {
   isNewUser: boolean | null;
   location: string | null;
   setLocation: (location: string) => void;
+  refreshUserStatus: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,7 +22,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isNewUser, setIsNewUser] = useState<boolean | null>(null);
-  const [location, setLocationState] = useState<string | null>('Darjeeling');
+  const [location, setLocationState] = useState<string | null>(null);
 
 
   const setLocation = useCallback((newLocation: string) => {
@@ -31,6 +32,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       update(userRef, { location: newLocation });
     }
   }, [user]);
+
+  const refreshUserStatus = useCallback(async () => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+        const dbRef = ref(db);
+        const snapshot = await get(child(dbRef, `users/${currentUser.uid}`));
+        const userData = snapshot.val();
+        setIsNewUser(!snapshot.exists() || !userData.preferences);
+    }
+  }, []);
 
 
   useEffect(() => {
@@ -46,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setLocationState(userData.location);
         } else {
             // Default location if not set
-            setLocationState('Darjeeling, India');
+            setLocationState(null);
         }
 
         // A user is "new" if they don't have a record or preferences in our `users` node.
@@ -54,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         setUser(null);
         setIsNewUser(null);
-        setLocationState('Darjeeling, India'); // Default for guests
+        setLocationState(null); // Default for guests
       }
       setLoading(false);
     });
@@ -62,10 +73,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  const value = { user, loading, isNewUser, location, setLocation };
+  const value = { user, loading, isNewUser, location, setLocation, refreshUserStatus };
 
   // Render a global loading state while we check for an active user session.
-  if (loading) {
+  if (loading && !user) {
     return (
         <div className="flex h-screen items-center justify-center">
             <Loader2 className="h-12 w-12 animate-spin text-primary" />

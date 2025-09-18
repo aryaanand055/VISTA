@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/contexts/auth-context';
 
 const interestOptions = [
   { id: 'adventure', label: 'Adventure (Hiking, Trekking)' },
@@ -24,12 +25,13 @@ const interestOptions = [
 ];
 
 export default function UserPreferencesPage() {
-  const [location, setLocation] = useState('Darjeeling, India');
+  const [location, setLocation] = useState('');
   const [interests, setInterests] = useState<string[]>([]);
   const [allergies, setAllergies] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const { refreshUserStatus } = useAuth();
 
   const handleInterestChange = (interestId: string) => {
     setInterests((prev) =>
@@ -74,6 +76,9 @@ export default function UserPreferencesPage() {
           allergies,
         },
       });
+
+      // Force a re-check of the user's status before navigating
+      await refreshUserStatus();
 
       toast({
         title: 'Preferences Saved!',
