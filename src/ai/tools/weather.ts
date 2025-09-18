@@ -30,6 +30,7 @@ export const getWeather = ai.defineTool(
 
     if (!apiKey) {
       console.warn('[getWeather] OPENWEATHERMAP_API_KEY is not set. Returning mock data.');
+      // This mock data will be used if the API key is not available.
       if (location.toLowerCase().includes('darjeeling')) {
         return {
           forecast: [
@@ -54,6 +55,10 @@ export const getWeather = ai.defineTool(
 
     try {
       const geoResponse = await fetch(geoUrl);
+      if (!geoResponse.ok) {
+        const errorText = await geoResponse.text();
+        throw new Error(`Geocoding API failed with status ${geoResponse.status}: ${errorText}`);
+      }
       const geoData = (await geoResponse.json()) as any;
       if (!geoData || geoData.length === 0) {
         throw new Error('Location not found.');
@@ -70,26 +75,30 @@ export const getWeather = ai.defineTool(
 
     try {
       const forecastResponse = await fetch(forecastUrl);
+      if (!forecastResponse.ok) {
+        const errorText = await forecastResponse.text();
+        throw new Error(`Forecast API failed with status ${forecastResponse.status}: ${errorText}`);
+      }
       const forecastData = (await forecastResponse.json()) as any;
 
+      // The API returns forecasts in 3-hour intervals. We'll pick one for each day.
       const dailyForecasts = new Map<string, any>();
 
       forecastData.list.forEach((item: any) => {
         const date = new Date(item.dt * 1000);
-        const day = date.toLocaleDateString('en-US', { weekday: 'long' });
-        if (!dailyForecasts.has(day) || date.getHours() >= 12) {
+        const day = date.toISOString().split('T')[0]; // Use YYYY-MM-DD as the key
+        
+        // Store the forecast for midday (12:00) if available, otherwise take the first one.
+        if (!dailyForecasts.has(day) || date.getUTCHours() === 12) {
           dailyForecasts.set(day, item);
         }
       });
       
-      const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-      const today = new Date().getDay();
-      const sortedDays = [...daysOfWeek.slice(today), ...daysOfWeek.slice(0, today)];
-
       const forecast = Array.from(dailyForecasts.values()).slice(0, 5).map((item, index) => {
         const date = new Date(item.dt * 1000);
+        const dayName = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(date);
         return {
-          day: index === 0 ? 'Today' : date.toLocaleDateString('en-US', { weekday: 'short'}),
+          day: index === 0 ? 'Today' : dayName,
           temperature: `${Math.round(item.main.temp)}°C`,
           condition: item.weather[0].main,
           icon: item.weather[0].icon,
