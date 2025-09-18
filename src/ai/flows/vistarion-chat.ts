@@ -83,13 +83,11 @@ const vistarionChatFlow = ai.defineFlow(
       const response = await ai.generate({
         model: 'googleai/gemini-1.5-flash-latest',
         tools: availableTools,
-        prompt: [
-            { role: 'system', content: [{ text: systemPrompt }] },
-            ...history.map(h => ({
-                role: h.role as 'user' | 'model', // Cast to the specific subtype
-                content: [{ text: h.content }],
-            })),
-        ],
+        system: systemPrompt,
+        prompt: history.map(h => ({
+            role: h.role,
+            content: [{ text: h.content }],
+        })),
       });
 
       if (!response) {
