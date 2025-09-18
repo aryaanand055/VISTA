@@ -79,20 +79,31 @@ const vistarionChatFlow = ai.defineFlow(
     ${warnings.length > 0 ? `\n- IMPORTANT: Politely inform the user about the following limitations at the beginning of your response:\n  - ${warnings.join('\n  - ')}` : ''}
     `;
     
-    const response = await ai.generate({
-      model: 'googleai/gemini-1.5-flash-latest',
-      tools: availableTools,
-      system: systemPrompt,
-      history: history.map(h => ({
-        role: h.role,
-        content: [{ text: h.content }],
-      })),
-    });
+    try {
+      const response = await ai.generate({
+        model: 'googleai/gemini-1.5-flash-latest',
+        tools: availableTools,
+        system: systemPrompt,
+        history: history.map(h => ({
+          role: h.role,
+          content: [{ text: h.content }],
+        })),
+      });
 
-    if (!response) {
-      throw new Error('The model failed to generate a response.');
+      if (!response) {
+        throw new Error('The model failed to generate a response.');
+      }
+      
+      const content = response.text;
+      return { content: content ?? 'Sorry, I am unable to respond at the moment.' };
+
+    } catch (e: any) {
+      console.error(`[vistarionChatFlow] Error generating response: ${e.message}`, {
+        history,
+        location
+      });
+      // Re-throw a more user-friendly error to be caught by the UI
+      throw new Error(`The AI model failed to generate a response. Please check the server logs for details. Original error: ${e.message}`);
     }
-
-    return { content: response.text ?? 'Sorry, I am unable to respond at the moment.' };
   }
 );
