@@ -5,49 +5,57 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, CheckCircle, Map, MapPin, LocateFixed, HelpCircle, Loader2 } from 'lucide-react';
-import Image from 'next/image';
+import { GoogleMapComponent } from '@/components/google-map';
 import { useAuth } from '@/contexts/auth-context';
 import { checkGeofence } from '@/ai/flows/check-geofence';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-const zones = {
-  ilp: {
+const zones = [
+  {
     name: 'Inner Line Permit (ILP) Zone',
-    color: 'bg-red-500/30',
-    borderColor: 'border-red-500',
-    textColor: 'text-red-500',
+    color: '#DB4437', // Red
     description: 'Requires an Inner Line Permit for all domestic tourists. This is common in states like Arunachal Pradesh, Nagaland, Mizoram, and Manipur.',
+    // Polygon paths for a rough area in the Himalayas
+    paths: [
+      { lat: 28.0, lng: 86.0 },
+      { lat: 27.5, lng: 85.0 },
+      { lat: 27.0, lng: 86.5 },
+      { lat: 27.8, lng: 88.0 },
+      { lat: 28.5, lng: 89.0 },
+    ],
+    center: { lat: 27.7, lng: 86.8 },
   },
-  pap: {
+  {
     name: 'Protected Area Permit (PAP) Zone',
-    color: 'bg-yellow-500/30',
-    borderColor: 'border-yellow-500',
-    textColor: 'text-yellow-500',
+    color: '#F4B400', // Yellow
     description: 'Requires a Protected Area Permit, typically for foreign nationals, to enter certain areas, often near international borders.',
+    // Polygon paths for another rough area
+    paths: [
+      { lat: 28.6, lng: 89.2 },
+      { lat: 28.2, lng: 89.0 },
+      { lat: 28.3, lng: 90.0 },
+      { lat: 28.8, lng: 90.2 },
+    ],
+    center: { lat: 28.4, lng: 89.6 },
   },
-  free: {
-    name: 'Unrestricted Zone',
-    color: 'bg-green-500/30',
-    borderColor: 'border-green-500',
-    textColor: 'text-green-500',
-    description: 'No special permits are required for entry for Indian nationals.',
-  },
-};
+];
 
 const checkpoints = [
-  { name: 'Rangpo Check Post', type: 'Entry/Exit for Sikkim' },
-  { name: 'Tawang Entry Point', type: 'Entry for Arunachal Pradesh' },
-  { name: 'Nathula Pass Gate', type: 'Border Crossing' },
+  { name: 'Rangpo Check Post', type: 'Entry/Exit for Sikkim', lat: 27.1706, lng: 88.5303 },
+  { name: 'Tawang Entry Point', type: 'Entry for Arunachal Pradesh', lat: 27.5857, lng: 91.8700 },
+  { name: 'Nathula Pass Gate', type: 'Border Crossing', lat: 27.3858, lng: 88.8314 },
 ];
+
 
 export default function GeoGuardPage() {
   const { location } = useAuth();
-  const [selectedItem, setSelectedItem] = useState<any>(zones.ilp);
-  const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [isFindingLocation, setIsFindingLocation] = useState(false);
   const [isCheckingZone, setIsCheckingZone] = useState(false);
   const [zoneCheckResult, setZoneCheckResult] = useState<any>(null);
+  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | undefined>(undefined);
   const { toast } = useToast();
 
   const handleFindLocation = () => {
@@ -57,8 +65,9 @@ export default function GeoGuardPage() {
       (position) => {
         const { latitude, longitude } = position.coords;
         // Simulate coordinates within a known restricted zone for demonstration
-        const simulatedLocation = { lat: 27.7172, lon: 85.3240 }; 
+        const simulatedLocation = { lat: 27.7172, lng: 85.3240 }; 
         setUserLocation(simulatedLocation);
+        setMapCenter(simulatedLocation);
         toast({
           title: 'Location Found!',
           description: `Your location is pinned on the map. (Simulated for demo)`,
@@ -89,7 +98,7 @@ export default function GeoGuardPage() {
     setIsCheckingZone(true);
     setZoneCheckResult(null);
     try {
-      const result = await checkGeofence({ latitude: userLocation.lat, longitude: userLocation.lon });
+      const result = await checkGeofence({ latitude: userLocation.lat, longitude: userLocation.lng });
       setZoneCheckResult(result);
     } catch (error) {
       console.error('Error checking geofence:', error);
@@ -102,6 +111,15 @@ export default function GeoGuardPage() {
       setIsCheckingZone(false);
     }
   };
+
+  const handleItemSelect = (item: any) => {
+    setSelectedItem(item);
+    if(item.center) {
+        setMapCenter(item.center);
+    } else if (item.lat && item.lng) {
+        setMapCenter({lat: item.lat, lng: item.lng});
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -147,7 +165,7 @@ export default function GeoGuardPage() {
             <CardContent>
               {selectedItem ? (
                 <div className="space-y-4 animate-fade-in">
-                  <div className={`p-4 rounded-lg ${selectedItem.color} ${selectedItem.borderColor} border-2`}>
+                  <div className={`p-4 rounded-lg border-2`} style={{ backgroundColor: `${selectedItem.color}30`, borderColor: selectedItem.color }}>
                      <p className="font-semibold">{selectedItem.description}</p>
                   </div>
                    {selectedItem.type && (
@@ -156,9 +174,9 @@ export default function GeoGuardPage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {Object.values(zones).map(zone => (
-                    <div key={zone.name} className="flex items-center gap-3">
-                      <div className={`h-5 w-5 rounded-sm ${zone.color} border ${zone.borderColor}`} />
+                  {zones.map(zone => (
+                    <div key={zone.name} className="flex items-center gap-3 cursor-pointer" onClick={() => handleItemSelect(zone)}>
+                      <div className={`h-5 w-5 rounded-sm border`} style={{ backgroundColor: `${zone.color}80`, borderColor: zone.color }}/>
                       <span className="text-sm font-medium">{zone.name}</span>
                     </div>
                   ))}
@@ -166,7 +184,7 @@ export default function GeoGuardPage() {
                   <h3 className="font-semibold text-sm pt-2">Checkpoints</h3>
                    <div className="space-y-2">
                     {checkpoints.map(cp => (
-                        <div key={cp.name} className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <div key={cp.name} className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer" onClick={() => handleItemSelect(cp)}>
                             <MapPin className="h-4 w-4 text-primary"/>
                             <span>{cp.name}</span>
                         </div>
@@ -181,48 +199,14 @@ export default function GeoGuardPage() {
         {/* Map */}
         <Card className="lg:col-span-2 h-full min-h-[600px] overflow-hidden">
           <CardContent className="p-0 h-full">
-            <div className="relative w-full h-full">
-              <Image
-                src="https://picsum.photos/seed/map-geofence/1200/800"
-                alt="Map with geofenced areas"
-                fill
-                style={{ objectFit: 'cover' }}
-                data-ai-hint="satellite map himalayas"
-              />
-              {/* Zone Overlays */}
-              <div
-                className={`absolute top-1/4 left-1/4 h-1/2 w-1/2 rounded-full cursor-pointer transition-all hover:scale-105 ${zones.ilp.color} ${selectedItem?.name === zones.ilp.name ? 'ring-4 ring-red-500' : ''}`}
-                onClick={() => setSelectedItem(zones.ilp)}
-              />
-              <div
-                className={`absolute top-10 right-10 h-1/3 w-1/3 rounded-lg cursor-pointer transition-all hover:scale-105 ${zones.pap.color} ${selectedItem?.name === zones.pap.name ? 'ring-4 ring-yellow-500' : ''}`}
-                onClick={() => setSelectedItem(zones.pap)}
-              />
-
-              {/* Checkpoints */}
-               {checkpoints.map((cp, i) => (
-                <div key={cp.name} 
-                  className={`absolute cursor-pointer p-1 rounded-full bg-background/80 backdrop-blur-sm hover:scale-110 transition-transform ${selectedItem?.name === cp.name ? 'ring-2 ring-primary' : ''}`}
-                  style={{ top: `${20 + i*15}%`, left: `${15 + i*20}%` }}
-                  onClick={() => setSelectedItem(cp)}>
-                  <MapPin className="h-6 w-6 text-primary fill-primary/50" />
-                </div>
-              ))}
-              
-              {/* User Location Marker */}
-              {userLocation && (
-                <div 
-                    className="absolute p-1 rounded-full bg-blue-500 ring-4 ring-white animate-fade-in"
-                    style={{ 
-                        top: `calc(${userLocation.lat % 1 * 80 + 10}%)`, 
-                        left: `calc(${userLocation.lon % 1 * 80 + 10}%)`
-                    }}
-                >
-                    <div className="h-3 w-3 rounded-full bg-white"/>
-                </div>
-              )}
-
-            </div>
+            <GoogleMapComponent 
+              zones={zones} 
+              checkpoints={checkpoints}
+              userLocation={userLocation ? { lat: userLocation.lat, lng: userLocation.lng } : null}
+              onZoneClick={handleItemSelect}
+              onCheckpointClick={handleItemSelect}
+              center={mapCenter}
+            />
           </CardContent>
         </Card>
       </div>
